@@ -23,6 +23,9 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.border
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -33,6 +36,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -40,8 +44,18 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.Info
-import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.Build as BuildIcon
+import androidx.compose.material.icons.filled.Info
+import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.DateRange
+import androidx.compose.material.icons.filled.Done
+import androidx.compose.material.icons.filled.KeyboardArrowRight
+import androidx.compose.material.icons.filled.Lock
+import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material.icons.filled.Phone
+import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -53,8 +67,20 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.font.FontStyle
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.em
+import androidx.compose.ui.unit.sp
 import androidx.fragment.app.Fragment
 import androidx.preference.Preference
 import com.android.settings.widget.setSettingsContent
@@ -73,6 +99,7 @@ private class AboutRowModel(
     private val context: Context,
     private val meta: PreferenceMetadata,
     private val pref: Preference,
+    val role: String,
 ) {
     var summary: String? by mutableStateOf(initialSummary)
 
@@ -123,52 +150,266 @@ private fun buildAboutRows(context: Context): List<AboutRowModel> {
                 context = context,
                 meta = meta,
                 pref = Preference(context),
+                role = meta::class.java.simpleName,
             )
         }
 }
 
-/** Compose About phone page: a hero card with grouped, tappable rows. Works in light and dark. */
+/** Compose About phone page, laid out to match the approved design. */
 class AboutPhoneComposeFragment : Fragment() {
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?,
     ): View = androidx.compose.ui.platform.ComposeView(requireContext()).apply {
-        setSettingsContent { AboutPhoneContent() }
+        setSettingsContent {
+            AboutPhoneContent(onBack = { requireActivity().onBackPressedDispatcher.onBackPressed() })
+        }
     }
-
 }
 
 @Composable
-private fun AboutPhoneContent() {
+private fun AboutPhoneContent(onBack: () -> Unit) {
     val context = LocalContext.current
     val rows = remember(context) { buildAboutRows(context) }
+    fun row(role: String): AboutRowModel? = rows.firstOrNull { it.role == role }
     val scheme = MaterialTheme.colorScheme
+    val dark = scheme.surface.luminance() < 0.5f
+    val glass = if (dark) Color.White.copy(alpha = 0.08f) else Color.White.copy(alpha = 0.7f)
+    val rim = if (dark) Color.White.copy(alpha = 0.12f) else Color.White.copy(alpha = 0.9f)
+    val ink = if (dark) Color.White else scheme.onSurface
+    val soft = ink.copy(alpha = 0.7f)
 
-    LazyColumn(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(scheme.surface),
-        contentPadding = PaddingValues(horizontal = 16.dp, vertical = 16.dp),
-        verticalArrangement = Arrangement.spacedBy(16.dp),
-    ) {
-        item { AboutHero() }
-        item {
-            Surface(
-                modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(28.dp),
-                color = scheme.surfaceContainerLow,
-            ) {
-                Column {
-                    rows.forEachIndexed { index, row ->
-                        AboutRowItem(row)
-                        if (index < rows.lastIndex) {
-                            HorizontalDivider(
-                                modifier = Modifier.padding(start = 72.dp),
-                                color = scheme.outlineVariant.copy(alpha = 0.5f),
+    Box(modifier = Modifier.fillMaxSize()) {
+        // Backdrop: deep gradient with soft violet and blue glows.
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(
+                    Brush.verticalGradient(
+                        if (dark) {
+                            listOf(Color(0xFF05060F), Color(0xFF0C0A24), Color(0xFF05060F))
+                        } else {
+                            listOf(Color(0xFFF6F3FF), Color(0xFFEDE8FF), Color(0xFFF6F3FF))
+                        }
+                    )
+                )
+        )
+        Canvas(modifier = Modifier.fillMaxSize()) {
+            drawCircle(
+                brush = Brush.radialGradient(
+                    colors = listOf(Color(0x66A855F7), Color.Transparent),
+                    center = Offset(size.width * 0.2f, size.height * 0.12f),
+                    radius = size.width * 0.75f,
+                ),
+            )
+            drawCircle(
+                brush = Brush.radialGradient(
+                    colors = listOf(Color(0x5538BDF8), Color.Transparent),
+                    center = Offset(size.width * 0.9f, size.height * 0.3f),
+                    radius = size.width * 0.6f,
+                ),
+            )
+        }
+
+        LazyColumn(
+            modifier = Modifier.fillMaxSize(),
+            contentPadding = PaddingValues(start = 16.dp, end = 16.dp, top = 24.dp, bottom = 32.dp),
+            verticalArrangement = Arrangement.spacedBy(12.dp),
+        ) {
+            // Top bar
+            item {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    GlassCircle(glass, rim, onClick = onBack) {
+                        Icon(Icons.Filled.ArrowBack, contentDescription = "Back", tint = ink)
+                    }
+                    Spacer(Modifier.width(16.dp))
+                    Text(
+                        text = "Android version",
+                        style = MaterialTheme.typography.titleLarge,
+                        color = ink,
+                        modifier = Modifier.weight(1f),
+                    )
+                    Icon(Icons.Filled.MoreVert, contentDescription = null, tint = ink)
+                }
+            }
+
+            // Hero logo block
+            item {
+                Column(
+                    modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                ) {
+                    Row(verticalAlignment = Alignment.Bottom) {
+                        Text(
+                            text = "Evolution",
+                            fontSize = 46.sp,
+                            fontWeight = FontWeight.Black,
+                            fontStyle = FontStyle.Italic,
+                            color = ink,
+                        )
+                        Spacer(Modifier.width(6.dp))
+                        Text(
+                            text = "X",
+                            fontSize = 52.sp,
+                            fontWeight = FontWeight.Black,
+                            fontStyle = FontStyle.Italic,
+                            color = Color(0xFFD946EF),
+                        )
+                    }
+                    Text(
+                        text = "CUSTOM  ROM",
+                        style = MaterialTheme.typography.labelLarge,
+                        letterSpacing = 0.5f.em,
+                        color = soft,
+                    )
+                    Spacer(Modifier.height(6.dp))
+                    Text(
+                        text = "Bigger  •  Better  •  Smoother",
+                        fontStyle = FontStyle.Italic,
+                        style = MaterialTheme.typography.bodyLarge,
+                        color = soft,
+                    )
+                }
+            }
+
+            // Device card
+            item {
+                Surface(
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(32.dp),
+                    color = glass,
+                    border = BorderStroke(1.dp, rim),
+                ) {
+                    Row(
+                        modifier = Modifier.padding(14.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        Box(
+                            modifier = Modifier
+                                .size(width = 96.dp, height = 110.dp)
+                                .clip(RoundedCornerShape(24.dp))
+                                .background(
+                                    Brush.linearGradient(
+                                        listOf(Color(0xFF7C3AED), Color(0xFF2563EB))
+                                    )
+                                ),
+                            contentAlignment = Alignment.Center,
+                        ) {
+                            Icon(Icons.Filled.Phone, contentDescription = null, tint = Color.White.copy(alpha = 0.85f), modifier = Modifier.size(40.dp))
+                        }
+                        Spacer(Modifier.width(14.dp))
+                        Box(modifier = Modifier.width(1.dp).height(72.dp).background(rim))
+                        Spacer(Modifier.width(14.dp))
+                        Column {
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                Icon(Icons.Filled.Phone, contentDescription = null, tint = Color(0xFF38BDF8), modifier = Modifier.size(22.dp))
+                                Spacer(Modifier.width(8.dp))
+                                Text(text = "Device", style = MaterialTheme.typography.titleMedium, color = ink)
+                            }
+                            Text(
+                                text = row("AboutDeviceNamePreference")?.summary ?: Build.MODEL,
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = soft,
                             )
+                            Spacer(Modifier.height(8.dp))
+                            Row(
+                                modifier = Modifier
+                                    .clip(RoundedCornerShape(50))
+                                    .background(Color(0xFF3B0764).copy(alpha = if (dark) 0.6f else 0.12f))
+                                    .padding(horizontal = 10.dp, vertical = 4.dp),
+                                verticalAlignment = Alignment.CenterVertically,
+                            ) {
+                                Icon(Icons.Filled.Star, contentDescription = null, tint = Color(0xFFD946EF), modifier = Modifier.size(14.dp))
+                                Spacer(Modifier.width(6.dp))
+                                Text(text = "Powered by Evolution X", style = MaterialTheme.typography.labelMedium, color = ink)
+                            }
                         }
                     }
+                }
+            }
+
+            // Info rows
+            val infoRows = listOf(
+                Triple("FirmwareVersionDetailPreference", Icons.Filled.Done, Color(0xFF4ADE80)),
+                Triple("LineageVersionDetailPreference", Icons.Filled.Star, Color(0xFFD946EF)),
+                Triple("SecurityPatchLevelPreference", Icons.Filled.Check, Color(0xFF22D3EE)),
+                Triple("LineageVendorSecurityPatchLevelPreference", Icons.Filled.Lock, Color(0xFFC026D3)),
+                Triple("BasebandVersionPreference", BuildIcon, Color(0xFF3B82F6)),
+                Triple("KernelVersionPreference", Icons.Filled.Settings, Color(0xFF2563EB)),
+                Triple("LineageBuildDatePreference", Icons.Filled.DateRange, Color(0xFF3B82F6)),
+                Triple("SimpleBuildNumberPreference", Icons.Filled.Info, Color(0xFF2563EB)),
+            )
+            items(infoRows) { (role, icon, tint) ->
+                val model = row(role) ?: return@items
+                Surface(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clickable(enabled = model.clickable) { model.onClick() },
+                    shape = RoundedCornerShape(32.dp),
+                    color = glass,
+                    border = BorderStroke(1.dp, rim),
+                ) {
+                    Row(
+                        modifier = Modifier.padding(horizontal = 16.dp, vertical = 14.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        Box(
+                            modifier = Modifier
+                                .size(52.dp)
+                                .background(tint.copy(alpha = 0.18f), CircleShape),
+                            contentAlignment = Alignment.Center,
+                        ) {
+                            Icon(icon, contentDescription = null, tint = tint, modifier = Modifier.size(26.dp))
+                        }
+                        Spacer(Modifier.width(16.dp))
+                        Column(modifier = Modifier.weight(1f)) {
+                            Text(text = model.title, style = MaterialTheme.typography.titleMedium, color = ink)
+                            model.summary?.takeIf { it.isNotBlank() }?.let {
+                                Text(text = it, style = MaterialTheme.typography.bodyMedium, color = soft)
+                            }
+                        }
+                        Spacer(Modifier.width(12.dp))
+                        Box(
+                            modifier = Modifier
+                                .size(40.dp)
+                                .background(ink.copy(alpha = 0.10f), CircleShape),
+                            contentAlignment = Alignment.Center,
+                        ) {
+                            Icon(Icons.Filled.KeyboardArrowRight, contentDescription = null, tint = ink)
+                        }
+                    }
+                }
+            }
+
+            // Footer
+            item {
+                Column(
+                    modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                ) {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(1.dp)
+                            .background(Brush.horizontalGradient(listOf(Color.Transparent, Color(0xFF38BDF8), Color.Transparent)))
+                    )
+                    Spacer(Modifier.height(12.dp))
+                    Text(
+                        text = buildAnnotatedString {
+                            withStyle(SpanStyle(color = Color(0xFFF0ABFC), fontWeight = FontWeight.SemiBold)) {
+                                append("Evolution X")
+                            }
+                            withStyle(SpanStyle(color = soft)) { append("  •  ") }
+                            withStyle(SpanStyle(color = Color(0xFF67E8F9), fontWeight = FontWeight.SemiBold)) {
+                                append("Android ${Build.VERSION.RELEASE_OR_PREVIEW_DISPLAY}")
+                            }
+                        },
+                        style = MaterialTheme.typography.titleSmall,
+                    )
                 }
             }
         }
@@ -176,66 +417,21 @@ private fun AboutPhoneContent() {
 }
 
 @Composable
-private fun AboutHero() {
-    val scheme = MaterialTheme.colorScheme
-    Surface(
-        modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(32.dp),
-        color = scheme.primaryContainer,
-    ) {
-        Column(modifier = Modifier.padding(24.dp)) {
-            Text(
-                text = "Evolution X",
-                style = MaterialTheme.typography.headlineMediumEmphasized,
-                color = scheme.onPrimaryContainer,
-            )
-            Spacer(Modifier.size(4.dp))
-            Text(
-                text = "Android ${Build.VERSION.RELEASE_OR_PREVIEW_DISPLAY}",
-                style = MaterialTheme.typography.titleMedium,
-                color = scheme.onPrimaryContainer.copy(alpha = 0.8f),
-            )
-        }
-    }
-}
-
-@Composable
-private fun AboutRowItem(row: AboutRowModel) {
-    val scheme = MaterialTheme.colorScheme
-    Row(
+private fun GlassCircle(
+    fill: Color,
+    rim: Color,
+    onClick: () -> Unit,
+    content: @Composable () -> Unit,
+) {
+    Box(
         modifier = Modifier
-            .fillMaxWidth()
-            .clickable(enabled = row.clickable) { row.onClick() }
-            .padding(horizontal = 16.dp, vertical = 14.dp),
-        verticalAlignment = Alignment.CenterVertically,
+            .size(52.dp)
+            .clip(CircleShape)
+            .background(fill)
+            .border(1.dp, rim, CircleShape)
+            .clickable(onClick = onClick),
+        contentAlignment = Alignment.Center,
     ) {
-        Box(
-            modifier = Modifier
-                .size(40.dp)
-                .background(scheme.secondaryContainer, CircleShape),
-            contentAlignment = Alignment.Center,
-        ) {
-            Icon(
-                imageVector = Icons.Outlined.Info,
-                contentDescription = null,
-                tint = scheme.onSecondaryContainer,
-                modifier = Modifier.size(20.dp),
-            )
-        }
-        Spacer(Modifier.width(16.dp))
-        Column(modifier = Modifier.weight(1f)) {
-            Text(
-                text = row.title,
-                style = MaterialTheme.typography.titleMedium,
-                color = scheme.onSurface,
-            )
-            row.summary?.takeIf { it.isNotBlank() }?.let {
-                Text(
-                    text = it,
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = scheme.onSurfaceVariant,
-                )
-            }
-        }
+        content()
     }
 }
