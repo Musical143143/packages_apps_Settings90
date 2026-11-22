@@ -244,27 +244,32 @@ private fun AboutPhoneContent(onBack: () -> Unit) {
 
             // Hero: the design artwork, faded into the page for a layered look.
             item {
-                Box(modifier = Modifier.fillMaxWidth().aspectRatio(852f / 310f)) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .aspectRatio(852f / 310f)
+                        .clip(RoundedCornerShape(32.dp)),
+                ) {
                     Image(
                         painter = painterResource(R.drawable.about_hero_bg),
                         contentDescription = null,
                         contentScale = ContentScale.FillBounds,
                         modifier = Modifier.fillMaxSize(),
                     )
-                    Box(
-                        modifier = Modifier
-                            .align(Alignment.BottomCenter)
-                            .fillMaxWidth()
-                            .height(56.dp)
-                            .background(
-                                Brush.verticalGradient(
-                                    listOf(
-                                        Color.Transparent,
-                                        if (dark) Color(0xFF05060F) else Color(0xFFF6F3FF),
+                    // Dark mode: fade the artwork into the page. Light mode keeps it as a rounded banner.
+                    if (dark) {
+                        Box(
+                            modifier = Modifier
+                                .align(Alignment.BottomCenter)
+                                .fillMaxWidth()
+                                .height(56.dp)
+                                .background(
+                                    Brush.verticalGradient(
+                                        listOf(Color.Transparent, Color(0xFF05060F)),
                                     )
-                                )
-                            ),
-                    )
+                                ),
+                        )
+                    }
                 }
             }
 
@@ -405,11 +410,11 @@ private fun AboutPhoneContent(onBack: () -> Unit) {
                     Spacer(Modifier.height(12.dp))
                     Text(
                         text = buildAnnotatedString {
-                            withStyle(SpanStyle(color = Color(0xFFF0ABFC), fontWeight = FontWeight.SemiBold)) {
+                            withStyle(SpanStyle(color = if (dark) Color(0xFFF0ABFC) else Color(0xFFA21CAF), fontWeight = FontWeight.SemiBold)) {
                                 append("Evolution X")
                             }
                             withStyle(SpanStyle(color = soft)) { append("  •  ") }
-                            withStyle(SpanStyle(color = Color(0xFF67E8F9), fontWeight = FontWeight.SemiBold)) {
+                            withStyle(SpanStyle(color = if (dark) Color(0xFF67E8F9) else Color(0xFF0E7490), fontWeight = FontWeight.SemiBold)) {
                                 append("Android ${Build.VERSION.RELEASE_OR_PREVIEW_DISPLAY}")
                             }
                         },
