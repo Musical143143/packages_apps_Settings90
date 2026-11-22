@@ -930,6 +930,15 @@ internal fun AppearancePanel(
                         maxLines = 6,
                         modifier = Modifier.fillMaxWidth(),
                     )
+                    SectionLabel("Greeting position")
+                    ChipOptions(
+                        options = GreetingAlignment.values().toList(),
+                        selected = layout.header.greetingAlignment,
+                        labelOf = { it.label },
+                        onSelect = {
+                            onLayout(layout.copy(header = layout.header.copy(greetingAlignment = it)))
+                        },
+                    )
 
                     SectionLabel("Tiles")
                     SwitchRow(

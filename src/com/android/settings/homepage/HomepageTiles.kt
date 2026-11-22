@@ -1241,7 +1241,11 @@ internal fun HomepageHeader(
                     text = greeting,
                     style = MaterialTheme.typography.titleSmall,
                     color = MaterialTheme.colorScheme.primary,
-                    textAlign = TextAlign.Start,
+                    textAlign = when (config.greetingAlignment) {
+                        GreetingAlignment.START -> TextAlign.Start
+                        GreetingAlignment.CENTER -> TextAlign.Center
+                        GreetingAlignment.END -> TextAlign.End
+                    },
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
                     modifier = Modifier.fillMaxWidth(),
