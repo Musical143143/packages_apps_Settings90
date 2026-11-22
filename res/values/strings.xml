@@ -15597,4 +15597,6 @@
     <!-- Search keywords for Human interface device access setting -->
     <string name="keywords_access_hid">hid, human, access, device</string>
     <!-- Access HID end -->
+    <string name="charging_animation_title">Charging animation</string>
+    <string name="charging_animation_summary">Show a water ripple on the lock screen when the charger is connected</string>
 </resources>
