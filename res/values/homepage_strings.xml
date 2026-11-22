@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="wellbeing_title">Digital wellbeing</string>
-    <string name="search_unavailable">Search isn't available on this device</string>
+    <string name="search_unavailable">Search isn&apos;t available on this device</string>
     <string name="homepage_edit_action">Edit</string>
 </resources>
