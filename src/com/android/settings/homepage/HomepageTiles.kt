@@ -24,6 +24,7 @@ import androidx.compose.animation.Crossfade
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -146,6 +147,26 @@ internal fun IconShape.containerShape(): Shape = when (this) {
     IconShape.SUNNY -> MaterialShapes.Sunny.toShape()
     IconShape.COOKIE_9 -> MaterialShapes.Cookie9Sided.toShape()
     IconShape.CLOVER_8 -> MaterialShapes.Clover8Leaf.toShape()
+    IconShape.ARCH -> MaterialShapes.Arch.toShape()
+    IconShape.FAN -> MaterialShapes.Fan.toShape()
+    IconShape.SLANTED -> MaterialShapes.Slanted.toShape()
+    IconShape.OVAL -> MaterialShapes.Oval.toShape()
+    IconShape.SEMI_CIRCLE -> MaterialShapes.SemiCircle.toShape()
+    IconShape.CLAM_SHELL -> MaterialShapes.ClamShell.toShape()
+    IconShape.FLOWER -> MaterialShapes.Flower.toShape()
+    IconShape.GHOSTISH -> MaterialShapes.Ghostish.toShape()
+    IconShape.PUFFY -> MaterialShapes.Puffy.toShape()
+    IconShape.PUFFY_DIAMOND -> MaterialShapes.PuffyDiamond.toShape()
+    IconShape.BUN -> MaterialShapes.Bun.toShape()
+    IconShape.BOOM -> MaterialShapes.Boom.toShape()
+    IconShape.SOFT_BOOM -> MaterialShapes.SoftBoom.toShape()
+    IconShape.BURST -> MaterialShapes.Burst.toShape()
+    IconShape.SOFT_BURST -> MaterialShapes.SoftBurst.toShape()
+    IconShape.PILL_STAR -> MaterialShapes.PillStar.toShape()
+    IconShape.PIXEL_CIRCLE -> MaterialShapes.PixelCircle.toShape()
+    IconShape.VERY_SUNNY -> MaterialShapes.VerySunny.toShape()
+    IconShape.COOKIE_7 -> MaterialShapes.Cookie7Sided.toShape()
+    IconShape.COOKIE_12 -> MaterialShapes.Cookie12Sided.toShape()
 }
 
 @Composable
@@ -513,6 +534,10 @@ internal fun HomepageDivider(
         }
 
         DividerStyle.SPLIT -> Unit
+        else -> HorizontalDivider(
+            thickness = style.thickness,
+            color = scheme.outlineVariant.copy(alpha = style.alpha),
+        )
     }
 }
 
@@ -562,22 +587,23 @@ private fun Chevron(style: ChevronStyle, size: Dp = 24.dp) {
             modifier = Modifier.size(size),
         )
     }
-    if (style == ChevronStyle.SQUARE) {
+    val corner = style.corner
+    if (corner != null) {
         Box(
             modifier = Modifier
                 .size(size + CHEVRON_CONTAINER_PADDING * 2)
-                .clip(RoundedCornerShape(8.dp))
-                .background(MaterialTheme.colorScheme.surfaceContainerHighest),
-            contentAlignment = Alignment.Center,
-        ) {
-            glyph()
-        }
-    } else if (style == ChevronStyle.CONTAINED) {
-        Box(
-            modifier = Modifier
-                .size(size + CHEVRON_CONTAINER_PADDING * 2)
-                .clip(CircleShape)
-                .background(MaterialTheme.colorScheme.surfaceContainerHighest),
+                .clip(RoundedCornerShape(corner))
+                .then(
+                    if (style.outlined) {
+                        Modifier.border(
+                            1.dp,
+                            MaterialTheme.colorScheme.outlineVariant,
+                            RoundedCornerShape(corner),
+                        )
+                    } else {
+                        Modifier.background(MaterialTheme.colorScheme.surfaceContainerHighest)
+                    }
+                ),
             contentAlignment = Alignment.Center,
         ) {
             glyph()

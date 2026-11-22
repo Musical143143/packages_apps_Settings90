@@ -63,30 +63,86 @@ enum class TileSize(val width: TileWidth, val height: TileHeight) {
 
 enum class SearchBarPosition { TOP, BOTTOM, INLINE, HIDDEN }
 enum class IconStyle { ACCENT, PLAIN, FILLED }
-enum class IconShape {
-    CIRCLE, ARROW, PILL, TRIANGLE, GEM, COOKIE_4, COOKIE_6, CLOVER_4,
-    SQUARE, DIAMOND, PENTAGON, SUNNY, COOKIE_9, CLOVER_8,
+enum class IconShape(val label: String) {
+    CIRCLE("Circle"), ARROW("Arrow"), PILL("Pill"), TRIANGLE("Triangle"), GEM("Gem"),
+    COOKIE_4("Cookie 4"), COOKIE_6("Cookie 6"), CLOVER_4("Clover"),
+    SQUARE("Square"), DIAMOND("Diamond"), PENTAGON("Pentagon"), SUNNY("Sunny"),
+    COOKIE_9("Cookie 9"), CLOVER_8("Clover 8"),
+    ARCH("Arch"), FAN("Fan"), SLANTED("Slanted"), OVAL("Oval"), SEMI_CIRCLE("Semi circle"),
+    CLAM_SHELL("Clam shell"), FLOWER("Flower"), GHOSTISH("Ghostish"), PUFFY("Puffy"),
+    PUFFY_DIAMOND("Puffy diamond"), BUN("Bun"), BOOM("Boom"), SOFT_BOOM("Soft boom"),
+    BURST("Burst"), SOFT_BURST("Soft burst"), PILL_STAR("Pill star"),
+    PIXEL_CIRCLE("Pixel circle"), VERY_SUNNY("Very sunny"), COOKIE_7("Cookie 7"),
+    COOKIE_12("Cookie 12"),
 }
 enum class IconPosition { START, END }
-enum class ChevronStyle {
-    PLAIN,
-    CONTAINED,
-    SQUARE,
-    HIDDEN,
+enum class ChevronStyle(val label: String, val corner: Dp?, val outlined: Boolean = false) {
+    PLAIN("Plain", null),
+    CONTAINED("On a circle", 999.dp),
+    SQUARE("Square", 8.dp),
+    HIDDEN("Hidden", null),
+    CHEVRON_R4("Rounded 4", 4.dp),
+    CHEVRON_R4_OUTLINED("Outline 4", 4.dp, true),
+    CHEVRON_R6("Rounded 6", 6.dp),
+    CHEVRON_R6_OUTLINED("Outline 6", 6.dp, true),
+    CHEVRON_R12("Rounded 12", 12.dp),
+    CHEVRON_R12_OUTLINED("Outline 12", 12.dp, true),
+    CHEVRON_R16("Rounded 16", 16.dp),
+    CHEVRON_R16_OUTLINED("Outline 16", 16.dp, true),
+    CHEVRON_R20("Rounded 20", 20.dp),
+    CHEVRON_R20_OUTLINED("Outline 20", 20.dp, true),
+    CHEVRON_R24("Rounded 24", 24.dp),
+    CHEVRON_R24_OUTLINED("Outline 24", 24.dp, true),
+    CHEVRON_R28("Rounded 28", 28.dp),
+    CHEVRON_R28_OUTLINED("Outline 28", 28.dp, true),
+    CHEVRON_R32("Rounded 32", 32.dp),
+    CHEVRON_R32_OUTLINED("Outline 32", 32.dp, true),
+    CHEVRON_R40("Rounded 40", 40.dp),
+    CHEVRON_R40_OUTLINED("Outline 40", 40.dp, true),
+    CHEVRON_R48("Rounded 48", 48.dp),
+    CHEVRON_R48_OUTLINED("Outline 48", 48.dp, true),
 }
 
-enum class CornerStyle(val radius: Dp) {
-    SHARP(4.dp), SOFT(16.dp), ROUNDED(24.dp), PILL(32.dp), EXTRA_ROUND(40.dp),
+enum class CornerStyle(val label: String, val radius: Dp) {
+    SHARP("Sharp", 4.dp), SOFT("Soft", 16.dp), ROUNDED("Rounded", 24.dp), PILL("Pill", 32.dp),
+    EXTRA_ROUND("Extra round", 40.dp),
+    CORNER_2("2 dp", 2.dp), CORNER_6("6 dp", 6.dp), CORNER_8("8 dp", 8.dp), CORNER_10("10 dp", 10.dp),
+    CORNER_12("12 dp", 12.dp), CORNER_14("14 dp", 14.dp), CORNER_18("18 dp", 18.dp),
+    CORNER_20("20 dp", 20.dp), CORNER_22("22 dp", 22.dp), CORNER_26("26 dp", 26.dp),
+    CORNER_28("28 dp", 28.dp), CORNER_30("30 dp", 30.dp), CORNER_34("34 dp", 34.dp),
+    CORNER_36("36 dp", 36.dp), CORNER_44("44 dp", 44.dp), CORNER_48("48 dp", 48.dp),
+    CORNER_52("52 dp", 52.dp), CORNER_56("56 dp", 56.dp), CORNER_60("60 dp", 60.dp),
+    CORNER_64("64 dp", 64.dp),
 }
 
-enum class DividerStyle {
-    NONE,
-    GAP,
-    INSET,
-    FULL,
-    THICK,
-    DOUBLE,
-    SPLIT,
+enum class DividerStyle(val label: String, val thickness: Dp = 1.dp, val alpha: Float = 0.4f) {
+    NONE("None"),
+    GAP("Gap"),
+    INSET("Inset"),
+    FULL("Full"),
+    THICK("Thick"),
+    DOUBLE("Double"),
+    SPLIT("Split cards"),
+    DIVIDER_T1_A25("1 dp, 25%", 1.dp, 0.25f),
+    DIVIDER_T1_A50("1 dp, 50%", 1.dp, 0.5f),
+    DIVIDER_T1_A75("1 dp, 75%", 1.dp, 0.75f),
+    DIVIDER_T1_A100("1 dp, 100%", 1.dp, 1.0f),
+    DIVIDER_T2_A25("2 dp, 25%", 2.dp, 0.25f),
+    DIVIDER_T2_A50("2 dp, 50%", 2.dp, 0.5f),
+    DIVIDER_T2_A75("2 dp, 75%", 2.dp, 0.75f),
+    DIVIDER_T2_A100("2 dp, 100%", 2.dp, 1.0f),
+    DIVIDER_T3_A25("3 dp, 25%", 3.dp, 0.25f),
+    DIVIDER_T3_A50("3 dp, 50%", 3.dp, 0.5f),
+    DIVIDER_T3_A75("3 dp, 75%", 3.dp, 0.75f),
+    DIVIDER_T3_A100("3 dp, 100%", 3.dp, 1.0f),
+    DIVIDER_T4_A25("4 dp, 25%", 4.dp, 0.25f),
+    DIVIDER_T4_A50("4 dp, 50%", 4.dp, 0.5f),
+    DIVIDER_T4_A75("4 dp, 75%", 4.dp, 0.75f),
+    DIVIDER_T4_A100("4 dp, 100%", 4.dp, 1.0f),
+    DIVIDER_T6_A25("6 dp, 25%", 6.dp, 0.25f),
+    DIVIDER_T6_A50("6 dp, 50%", 6.dp, 0.5f),
+    DIVIDER_T6_A75("6 dp, 75%", 6.dp, 0.75f),
+    DIVIDER_T6_A100("6 dp, 100%", 6.dp, 1.0f),
 }
 
 enum class HeaderSize { LARGE, COMPACT }
