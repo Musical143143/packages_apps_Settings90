@@ -525,7 +525,10 @@ internal fun HomepageCard(
 /** Full-width canvas row used by the drawn divider styles. */
 @Composable
 private fun DividerCanvas(draw: DrawScope.() -> Unit) {
-    Canvas(Modifier.fillMaxWidth().height(12.dp)) { draw() }
+    Canvas(Modifier.fillMaxWidth().height(12.dp)) {
+        // Guard against unbounded or zero width: the drawn styles loop across the width.
+        if (size.width.isFinite() && size.width in 1f..100_000f) draw()
+    }
 }
 
 @Composable
