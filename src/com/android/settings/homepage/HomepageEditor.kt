@@ -846,6 +846,13 @@ internal fun AppearancePanel(
                     }
 
                     SectionLabel("Header")
+                    SwitchRow(
+                        label = "Show header",
+                        checked = layout.header.showHeader,
+                        onCheckedChange = {
+                            onLayout(layout.copy(header = layout.header.copy(showHeader = it)))
+                        },
+                    )
                     OutlinedTextField(
                         value = layout.header.customTitle ?: "",
                         onValueChange = {
@@ -904,6 +911,13 @@ internal fun AppearancePanel(
                         checked = layout.header.showGreeting,
                         onCheckedChange = {
                             onLayout(layout.copy(header = layout.header.copy(showGreeting = it)))
+                        },
+                    )
+                    SwitchRow(
+                        label = "Random greetings",
+                        checked = layout.header.randomGreeting,
+                        onCheckedChange = {
+                            onLayout(layout.copy(header = layout.header.copy(randomGreeting = it)))
                         },
                     )
 

@@ -625,11 +625,14 @@ private fun ChromeContent(
     onResetAll: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
+    val randomTemplate = remember { HOMEPAGE_GREETINGS.random() }
     when (kind) {
         ChromeKind.HEADER -> HomepageHeader(
             config = layout.header,
             title = layout.header.customTitle ?: defaultTitle,
-            greeting = userName?.takeIf { layout.header.showGreeting }?.let { "Hi, $it" },
+            greeting = userName?.takeIf { layout.header.showGreeting }?.let { name ->
+                if (layout.header.randomGreeting) randomTemplate.format(name) else "Hi, $name"
+            },
             avatarBitmap = avatarBitmap,
             onAvatarClick = { if (!editing) onAvatarClick() },
             modifier = modifier,

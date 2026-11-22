@@ -74,6 +74,7 @@ import androidx.compose.material3.toShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
@@ -1065,6 +1066,18 @@ internal fun InlineSearchBarTile(
 }
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
+/** Greeting templates for the random greeting mode; %s is the user's name. */
+internal val HOMEPAGE_GREETINGS = listOf(
+    "Hi, %s",
+    "Welcome back, %s",
+    "Good to see you, %s",
+    "Have a great day, %s",
+    "Hey %s, ready?",
+    "Nice to see you, %s",
+    "Let's make it count, %s",
+    "Hello again, %s",
+)
+
 @Composable
 internal fun HomepageHeader(
     config: HeaderConfig,
@@ -1075,6 +1088,10 @@ internal fun HomepageHeader(
     modifier: Modifier = Modifier,
 ) {
     val compact = config.size == HeaderSize.COMPACT
+    if (!config.showHeader) {
+        Spacer(modifier.height(8.dp))
+        return
+    }
     if (!config.showTitle && !config.showAvatar && greeting == null) {
         Spacer(modifier.height(if (compact) 16.dp else 32.dp))
         return
@@ -1091,14 +1108,19 @@ internal fun HomepageHeader(
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        Column(modifier = Modifier.weight(1f)) {
+        Column(
+            modifier = Modifier.weight(1f),
+            horizontalAlignment = Alignment.Start,
+        ) {
             if (greeting != null) {
                 Text(
                     text = greeting,
                     style = MaterialTheme.typography.titleSmall,
                     color = MaterialTheme.colorScheme.primary,
+                    textAlign = TextAlign.Start,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
+                    modifier = Modifier.fillMaxWidth(),
                 )
                 Spacer(Modifier.height(2.dp))
             }
@@ -1111,8 +1133,10 @@ internal fun HomepageHeader(
                         MaterialTheme.typography.displayMediumEmphasized
                     },
                     color = MaterialTheme.colorScheme.onSurface,
+                    textAlign = TextAlign.Start,
                     maxLines = 2,
                     overflow = TextOverflow.Ellipsis,
+                    modifier = Modifier.fillMaxWidth(),
                 )
             }
         }
