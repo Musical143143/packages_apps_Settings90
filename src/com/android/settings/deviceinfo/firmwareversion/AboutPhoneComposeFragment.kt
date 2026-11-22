@@ -94,6 +94,12 @@ import com.android.settings.R
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.WindowInsetsSides
+import androidx.compose.foundation.layout.only
+import androidx.compose.foundation.layout.safeDrawing
+import androidx.compose.foundation.layout.windowInsetsPadding
+import com.android.axion.compose.theme.AxionTheme
 
 /**
  * One row on the About phone page, built from the existing preference metadata.
@@ -170,7 +176,9 @@ class AboutPhoneComposeFragment : Fragment() {
         savedInstanceState: Bundle?,
     ): View = androidx.compose.ui.platform.ComposeView(requireContext()).apply {
         setSettingsContent {
-            AboutPhoneContent(onBack = { requireActivity().onBackPressedDispatcher.onBackPressed() })
+            AxionTheme {
+                AboutPhoneContent(onBack = { requireActivity().onBackPressedDispatcher.onBackPressed() })
+            }
         }
     }
 }
@@ -220,30 +228,12 @@ private fun AboutPhoneContent(onBack: () -> Unit) {
         }
 
         LazyColumn(
-            modifier = Modifier.fillMaxSize(),
-            contentPadding = PaddingValues(start = 16.dp, end = 16.dp, top = 24.dp, bottom = 32.dp),
+            modifier = Modifier
+                .fillMaxSize()
+                .windowInsetsPadding(WindowInsets.safeDrawing.only(WindowInsetsSides.Horizontal + WindowInsetsSides.Bottom)),
+            contentPadding = PaddingValues(start = 16.dp, end = 16.dp, top = 16.dp, bottom = 32.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp),
         ) {
-            // Top bar
-            item {
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    verticalAlignment = Alignment.CenterVertically,
-                ) {
-                    GlassCircle(glass, rim, onClick = onBack) {
-                        Icon(Icons.Filled.ArrowBack, contentDescription = "Back", tint = ink)
-                    }
-                    Spacer(Modifier.width(16.dp))
-                    Text(
-                        text = "Android version",
-                        style = MaterialTheme.typography.titleLarge,
-                        color = ink,
-                        modifier = Modifier.weight(1f),
-                    )
-                    Icon(Icons.Filled.MoreVert, contentDescription = null, tint = ink)
-                }
-            }
-
             // Hero: the design artwork, faded into the page for a layered look.
             item {
                 Box(
@@ -297,6 +287,7 @@ private fun AboutPhoneContent(onBack: () -> Unit) {
                             painter = painterResource(R.drawable.about_device_photo),
                             contentDescription = null,
                             contentScale = ContentScale.Crop,
+                            alignment = Alignment.TopCenter,
                             modifier = Modifier.fillMaxHeight().width(128.dp),
                         )
                         Spacer(Modifier.width(16.dp))
