@@ -226,6 +226,8 @@ data class HeaderConfig(
     val avatarShape: IconShape = IconShape.COOKIE_4,
     val showHeader: Boolean = true,
     val randomGreeting: Boolean = false,
+    /** User-written greetings, one per line. Empty means use the built-in greetings. */
+    val customGreetings: String = "",
 )
 
 data class HomepageLayout(
@@ -486,6 +488,7 @@ internal object HomepageLayoutJson {
     private const val KEY_SHOW_GREETING = "showGreeting"
     private const val KEY_SHOW_HEADER = "showHeader"
     private const val KEY_RANDOM_GREETING = "randomGreeting"
+    private const val KEY_CUSTOM_GREETINGS = "customGreetings"
     private const val KEY_HEADER_SIZE = "size"
     private const val KEY_AVATAR_SHAPE = "avatarShape"
 
@@ -511,6 +514,7 @@ internal object HomepageLayoutJson {
             put(KEY_SHOW_GREETING, layout.header.showGreeting)
             put(KEY_SHOW_HEADER, layout.header.showHeader)
             put(KEY_RANDOM_GREETING, layout.header.randomGreeting)
+            put(KEY_CUSTOM_GREETINGS, layout.header.customGreetings)
             put(KEY_HEADER_SIZE, layout.header.size.name)
             put(KEY_AVATAR_SHAPE, layout.header.avatarShape.name)
         })
@@ -624,6 +628,7 @@ internal object HomepageLayoutJson {
             showGreeting = optBoolean(KEY_SHOW_GREETING, fallback.showGreeting),
             showHeader = optBoolean(KEY_SHOW_HEADER, fallback.showHeader),
             randomGreeting = optBoolean(KEY_RANDOM_GREETING, fallback.randomGreeting),
+            customGreetings = optString(KEY_CUSTOM_GREETINGS, fallback.customGreetings),
             size = enumOr(optString(KEY_HEADER_SIZE), fallback.size),
             avatarShape = enumOr(optString(KEY_AVATAR_SHAPE), fallback.avatarShape),
         )

@@ -626,12 +626,20 @@ private fun ChromeContent(
     modifier: Modifier = Modifier,
 ) {
     val randomTemplate = remember { HOMEPAGE_GREETINGS.random() }
+    val wishes = layout.header.customGreetings.lines().map { it.trim() }.filter { it.isNotEmpty() }
+    val randomWish = remember(wishes) { wishes.ifEmpty { listOf("") }.random() }
     when (kind) {
         ChromeKind.HEADER -> HomepageHeader(
             config = layout.header,
             title = layout.header.customTitle ?: defaultTitle,
-            greeting = userName?.takeIf { layout.header.showGreeting }?.let { name ->
-                if (layout.header.randomGreeting) randomTemplate.format(name) else "Hi, $name"
+            greeting = when {
+                !layout.header.showGreeting -> null
+                wishes.isNotEmpty() && layout.header.randomGreeting ->
+                    fillGreeting(randomWish, userName)
+                wishes.isNotEmpty() -> fillGreeting(wishes.first(), userName)
+                userName == null -> null
+                layout.header.randomGreeting -> randomTemplate.format(userName)
+                else -> "Hi, $userName"
             },
             avatarBitmap = avatarBitmap,
             onAvatarClick = { if (!editing) onAvatarClick() },

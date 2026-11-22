@@ -1078,6 +1078,10 @@ internal val HOMEPAGE_GREETINGS = listOf(
     "Hello again, %s",
 )
 
+/** Fills a greeting template: %s becomes the name, or is removed when there is no name. */
+internal fun fillGreeting(template: String, name: String?): String =
+    template.replace("%s", name ?: "").replace(" ,", ",").trim()
+
 @Composable
 internal fun HomepageHeader(
     config: HeaderConfig,

@@ -920,6 +920,16 @@ internal fun AppearancePanel(
                             onLayout(layout.copy(header = layout.header.copy(randomGreeting = it)))
                         },
                     )
+                    OutlinedTextField(
+                        value = layout.header.customGreetings,
+                        onValueChange = {
+                            onLayout(layout.copy(header = layout.header.copy(customGreetings = it)))
+                        },
+                        label = { Text("Your greetings (one per line, use %s for name)") },
+                        minLines = 2,
+                        maxLines = 6,
+                        modifier = Modifier.fillMaxWidth(),
+                    )
 
                     SectionLabel("Tiles")
                     SwitchRow(
