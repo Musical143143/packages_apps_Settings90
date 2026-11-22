@@ -84,6 +84,17 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.compose.foundation.Canvas
+import androidx.compose.ui.geometry.CornerRadius
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Path
+import androidx.compose.ui.graphics.PathEffect
+import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.graphics.StrokeJoin
+import androidx.compose.ui.graphics.drawscope.DrawScope
+import androidx.compose.ui.graphics.drawscope.Stroke
 
 internal val GRID_TILE_SPACING = 12.dp
 internal val SEARCH_BAR_HEIGHT = 56.dp
@@ -504,6 +515,12 @@ internal fun HomepageCard(
     }
 }
 
+/** Full-width canvas row used by the drawn divider styles. */
+@Composable
+private fun DividerCanvas(draw: DrawScope.() -> Unit) {
+    Canvas(Modifier.fillMaxWidth().height(12.dp)) { draw() }
+}
+
 @Composable
 internal fun HomepageDivider(
     style: DividerStyle,
@@ -543,6 +560,233 @@ internal fun HomepageDivider(
         }
 
         DividerStyle.SPLIT -> Unit
+
+        DividerStyle.DOTTED -> DividerCanvas {
+            val y = size.height / 2f
+            drawLine(
+                color = scheme.outlineVariant.copy(alpha = 0.8f),
+                start = Offset(0f, y), end = Offset(size.width, y),
+                strokeWidth = 3.dp.toPx(), cap = StrokeCap.Round,
+                pathEffect = PathEffect.dashPathEffect(floatArrayOf(0f, 9.dp.toPx()), 0f),
+            )
+        }
+
+        DividerStyle.DASHED -> DividerCanvas {
+            val y = size.height / 2f
+            drawLine(
+                color = scheme.outlineVariant.copy(alpha = 0.8f),
+                start = Offset(0f, y), end = Offset(size.width, y),
+                strokeWidth = 1.5f.dp.toPx(),
+                pathEffect = PathEffect.dashPathEffect(floatArrayOf(12.dp.toPx(), 8.dp.toPx()), 0f),
+            )
+        }
+
+        DividerStyle.LONG_DASH -> DividerCanvas {
+            val y = size.height / 2f
+            drawLine(
+                color = scheme.outlineVariant.copy(alpha = 0.8f),
+                start = Offset(0f, y), end = Offset(size.width, y),
+                strokeWidth = 2.dp.toPx(),
+                pathEffect = PathEffect.dashPathEffect(floatArrayOf(28.dp.toPx(), 10.dp.toPx()), 0f),
+            )
+        }
+
+        DividerStyle.DOT_DASH -> DividerCanvas {
+            val y = size.height / 2f
+            drawLine(
+                color = scheme.outlineVariant.copy(alpha = 0.8f),
+                start = Offset(0f, y), end = Offset(size.width, y),
+                strokeWidth = 1.5f.dp.toPx(),
+                pathEffect = PathEffect.dashPathEffect(
+                    floatArrayOf(10.dp.toPx(), 6.dp.toPx(), 2.dp.toPx(), 6.dp.toPx()), 0f,
+                ),
+            )
+        }
+
+        DividerStyle.WAVY -> DividerCanvas {
+            val y = size.height / 2f
+            val step = 12.dp.toPx()
+            val amp = 3.dp.toPx()
+            val path = Path().apply {
+                moveTo(0f, y)
+                var x = 0f
+                var up = true
+                while (x < size.width) {
+                    val next = x + step
+                    quadraticTo(x + step / 2f, if (up) y - amp else y + amp, next, y)
+                    x = next
+                    up = !up
+                }
+            }
+            drawPath(path, scheme.outlineVariant.copy(alpha = 0.8f), style = Stroke(width = 2.dp.toPx()))
+        }
+
+        DividerStyle.ZIGZAG -> DividerCanvas {
+            val y = size.height / 2f
+            val step = 8.dp.toPx()
+            val amp = 4.dp.toPx()
+            val path = Path().apply {
+                moveTo(0f, y - amp)
+                var x = 0f
+                var up = false
+                while (x < size.width) {
+                    x += step
+                    lineTo(x, if (up) y - amp else y + amp)
+                    up = !up
+                }
+            }
+            drawPath(
+                path, scheme.outlineVariant.copy(alpha = 0.8f),
+                style = Stroke(width = 2.dp.toPx(), cap = StrokeCap.Round, join = StrokeJoin.Round),
+            )
+        }
+
+        DividerStyle.TRIPLE -> DividerCanvas {
+            val y = size.height / 2f
+            val gap = 3.dp.toPx()
+            val color = scheme.outlineVariant.copy(alpha = 0.6f)
+            listOf(-gap, 0f, gap).forEach { dy ->
+                drawLine(color, Offset(0f, y + dy), Offset(size.width, y + dy), strokeWidth = 1.dp.toPx())
+            }
+        }
+
+        DividerStyle.FADE_EDGES -> DividerCanvas {
+            val y = size.height / 2f
+            drawRect(
+                brush = Brush.horizontalGradient(
+                    0f to Color.Transparent,
+                    0.5f to scheme.outlineVariant.copy(alpha = 0.6f),
+                    1f to Color.Transparent,
+                ),
+                topLeft = Offset(0f, y - 1.dp.toPx()),
+                size = Size(size.width, 2.dp.toPx()),
+            )
+        }
+
+        DividerStyle.CENTER_GLOW -> DividerCanvas {
+            val y = size.height / 2f
+            drawRect(
+                brush = Brush.horizontalGradient(
+                    0f to Color.Transparent,
+                    0.5f to scheme.primary,
+                    1f to Color.Transparent,
+                ),
+                topLeft = Offset(0f, y - 1.5f.dp.toPx()),
+                size = Size(size.width, 3.dp.toPx()),
+            )
+        }
+
+        DividerStyle.PRIMARY_LINE -> HorizontalDivider(
+            thickness = 2.dp,
+            color = scheme.primary,
+        )
+
+        DividerStyle.TERTIARY_LINE -> HorizontalDivider(
+            thickness = 2.dp,
+            color = scheme.tertiary.copy(alpha = 0.7f),
+        )
+
+        DividerStyle.GROOVE -> Column {
+            HorizontalDivider(thickness = 1.dp, color = scheme.shadow.copy(alpha = 0.25f))
+            HorizontalDivider(thickness = 1.dp, color = scheme.surfaceBright)
+        }
+
+        DividerStyle.RAISED -> Column {
+            HorizontalDivider(thickness = 1.dp, color = scheme.surfaceBright)
+            HorizontalDivider(thickness = 1.dp, color = scheme.shadow.copy(alpha = 0.25f))
+        }
+
+        DividerStyle.CENTER_DIAMOND -> DividerCanvas {
+            val y = size.height / 2f
+            val cx = size.width / 2f
+            val r = 4.dp.toPx()
+            drawLine(
+                scheme.outlineVariant.copy(alpha = 0.6f),
+                Offset(0f, y), Offset(size.width, y), strokeWidth = 1.dp.toPx(),
+            )
+            val diamond = Path().apply {
+                moveTo(cx, y - r)
+                lineTo(cx + r, y)
+                lineTo(cx, y + r)
+                lineTo(cx - r, y)
+                close()
+            }
+            drawPath(diamond, scheme.primary)
+        }
+
+        DividerStyle.ROUNDED_BAR -> DividerCanvas {
+            val y = size.height / 2f
+            drawRoundRect(
+                color = scheme.outlineVariant.copy(alpha = 0.5f),
+                topLeft = Offset(0f, y - 2.dp.toPx()),
+                size = Size(size.width, 4.dp.toPx()),
+                cornerRadius = CornerRadius(2.dp.toPx()),
+            )
+        }
+
+        DividerStyle.SEGMENTED -> DividerCanvas {
+            val y = size.height / 2f
+            val seg = 24.dp.toPx()
+            val gap = 8.dp.toPx()
+            var x = 0f
+            while (x < size.width) {
+                drawRect(
+                    color = scheme.outlineVariant.copy(alpha = 0.7f),
+                    topLeft = Offset(x, y - 1.dp.toPx()),
+                    size = Size(minOf(seg, size.width - x), 2.dp.toPx()),
+                )
+                x += seg + gap
+            }
+        }
+
+        DividerStyle.LENS -> DividerCanvas {
+            val y = size.height / 2f
+            val bulge = 3.dp.toPx()
+            val lens = Path().apply {
+                moveTo(0f, y)
+                quadraticTo(size.width / 2f, y - bulge, size.width, y)
+                quadraticTo(size.width / 2f, y + bulge, 0f, y)
+                close()
+            }
+            drawPath(lens, scheme.primary.copy(alpha = 0.7f))
+        }
+
+        DividerStyle.BEADS -> DividerCanvas {
+            val y = size.height / 2f
+            val spacing = 12.dp.toPx()
+            val r = 2.dp.toPx()
+            var x = r
+            while (x < size.width - r) {
+                drawCircle(
+                    color = scheme.outlineVariant.copy(alpha = 0.8f),
+                    radius = r,
+                    center = Offset(x, y),
+                )
+                x += spacing
+            }
+        }
+
+        DividerStyle.DOUBLE_DASH -> DividerCanvas {
+            val dash = PathEffect.dashPathEffect(floatArrayOf(10.dp.toPx(), 6.dp.toPx()), 0f)
+            val color = scheme.outlineVariant.copy(alpha = 0.7f)
+            val y = size.height / 2f
+            listOf(-2.dp.toPx(), 2.dp.toPx()).forEach { dy ->
+                drawLine(color, Offset(0f, y + dy), Offset(size.width, y + dy),
+                    strokeWidth = 1.dp.toPx(), pathEffect = dash)
+            }
+        }
+
+        DividerStyle.TICKS -> DividerCanvas {
+            val y = size.height / 2f
+            val color = scheme.outlineVariant.copy(alpha = 0.7f)
+            drawLine(color, Offset(0f, y), Offset(size.width, y), strokeWidth = 1.dp.toPx())
+            val spacing = 16.dp.toPx()
+            var x = 0f
+            while (x <= size.width) {
+                drawLine(color, Offset(x, y - 4.dp.toPx()), Offset(x, y + 4.dp.toPx()), strokeWidth = 1.dp.toPx())
+                x += spacing
+            }
+        }
         else -> HorizontalDivider(
             thickness = style.thickness,
             color = scheme.outlineVariant.copy(alpha = style.alpha),
