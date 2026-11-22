@@ -289,19 +289,19 @@ private fun AboutPhoneContent(onBack: () -> Unit) {
                     border = BorderStroke(1.dp, rim),
                 ) {
                     Row(
-                        modifier = Modifier.padding(14.dp),
+                        modifier = Modifier.height(150.dp),
                         verticalAlignment = Alignment.CenterVertically,
                     ) {
                         Image(
                             painter = painterResource(R.drawable.about_device_photo),
                             contentDescription = null,
-                            contentScale = ContentScale.Fit,
-                            modifier = Modifier.size(width = 92.dp, height = 116.dp),
+                            contentScale = ContentScale.Crop,
+                            modifier = Modifier.fillMaxHeight().width(128.dp),
                         )
-                        Spacer(Modifier.width(14.dp))
+                        Spacer(Modifier.width(16.dp))
                         Box(modifier = Modifier.width(1.dp).height(72.dp).background(rim))
                         Spacer(Modifier.width(14.dp))
-                        Column {
+                        Column(modifier = Modifier.weight(1f).padding(end = 16.dp)) {
                             Row(verticalAlignment = Alignment.CenterVertically) {
                                 Icon(Icons.Filled.Phone, contentDescription = null, tint = Color(0xFF38BDF8), modifier = Modifier.size(22.dp))
                                 Spacer(Modifier.width(8.dp))
@@ -354,14 +354,7 @@ private fun AboutPhoneContent(onBack: () -> Unit) {
                         modifier = Modifier.padding(horizontal = 16.dp, vertical = 14.dp),
                         verticalAlignment = Alignment.CenterVertically,
                     ) {
-                        Box(
-                            modifier = Modifier
-                                .size(52.dp)
-                                .background(tint.copy(alpha = 0.18f), CircleShape),
-                            contentAlignment = Alignment.Center,
-                        ) {
-                            Icon(icon, contentDescription = null, tint = tint, modifier = Modifier.size(26.dp))
-                        }
+                        Icon(icon, contentDescription = null, tint = tint, modifier = Modifier.size(40.dp))
                         Spacer(Modifier.width(16.dp))
                         Column(modifier = Modifier.weight(1f)) {
                             Text(text = model.title, style = MaterialTheme.typography.titleMedium, color = ink)
