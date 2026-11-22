@@ -1013,18 +1013,46 @@ internal fun PinnedSearchBar(
     ) {
         SearchBarBody(size = TileSize.ROW, hint = hint)
     }
+    val scheme = MaterialTheme.colorScheme
+    val menuIsDark = scheme.surface.luminance() < 0.5f
     DropdownMenu(
         expanded = menuOpen && canEdit,
         onDismissRequest = { menuOpen = false },
+        shape = RoundedCornerShape(28.dp),
+        containerColor = if (menuIsDark) {
+            scheme.surfaceContainerHigh.copy(alpha = 0.88f)
+        } else {
+            Color.White.copy(alpha = 0.86f)
+        },
+        tonalElevation = 0.dp,
+        shadowElevation = 10.dp,
+        border = BorderStroke(
+            1.dp,
+            if (menuIsDark) Color.White.copy(alpha = 0.18f) else Color.White.copy(alpha = 0.8f),
+        ),
     ) {
         DropdownMenuItem(
-            text = { Text(stringResource(R.string.homepage_edit_action)) },
-            leadingIcon = {
-                Icon(
-                    imageVector = Icons.Outlined.Edit,
-                    contentDescription = null,
-                    modifier = Modifier.size(20.dp),
+            text = {
+                Text(
+                    text = stringResource(R.string.homepage_edit_action),
+                    style = MaterialTheme.typography.titleMedium,
+                    color = scheme.onSurface,
                 )
+            },
+            leadingIcon = {
+                Box(
+                    modifier = Modifier
+                        .size(36.dp)
+                        .background(scheme.primary.copy(alpha = 0.16f), CircleShape),
+                    contentAlignment = Alignment.Center,
+                ) {
+                    Icon(
+                        imageVector = Icons.Outlined.Edit,
+                        contentDescription = null,
+                        tint = scheme.primary,
+                        modifier = Modifier.size(20.dp),
+                    )
+                }
             },
             onClick = {
                 menuOpen = false
