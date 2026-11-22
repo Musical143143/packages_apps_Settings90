@@ -43,6 +43,8 @@ import com.android.settings.safetycenter.SafetyCenterManagerWrapper
 import android.app.settings.SettingsEnums
 import android.content.ComponentName
 import android.content.pm.PackageManager
+import android.app.ActivityOptions
+import android.content.ActivityNotFoundException
 
 class ComposeHomepageController(private val activity: SettingsHomepageActivity) {
 
@@ -120,11 +122,7 @@ class ComposeHomepageController(private val activity: SettingsHomepageActivity) 
 
         SettingsHomepageComposeInterop.setContent(
             composeView,
-            onSearchClick = Runnable {
-                val intent = FeatureFactory.featureFactory.searchFeatureProvider
-                    .buildSearchIntent(activity, SettingsEnums.SETTINGS_HOMEPAGE)
-                activity.startActivity(intent)
-            },
+            onSearchClick = Runnable { launchSearch() },
             onAvatarClick = Runnable {
                 val intent = Intent(android.provider.Settings.ACTION_USER_SETTINGS)
                 intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
@@ -181,6 +179,29 @@ class ComposeHomepageController(private val activity: SettingsHomepageActivity) 
         activity.startActivity(Intent()
             .setClassName(pkg, cls)
             .setFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK))
+    }
+
+    /**
+     * Opens Settings search. Mirrors the classic homepage's search toolbar: only launch when a
+     * search activity actually resolves, so a missing Settings Intelligence package no longer
+     * crashes the homepage.
+     */
+    private fun launchSearch() {
+        val intent = FeatureFactory.featureFactory.searchFeatureProvider
+            .buildSearchIntent(activity, SettingsEnums.SETTINGS_HOMEPAGE)
+            .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
+        val resolved = activity.packageManager.queryIntentActivities(
+            intent, PackageManager.MATCH_DEFAULT_ONLY)
+        if (resolved.isEmpty()) {
+            Log.w(TAG, "No search activity available; ignoring search click")
+            return
+        }
+        try {
+            val options = ActivityOptions.makeCustomAnimation(activity, 0, 0).toBundle()
+            activity.startActivity(intent, options)
+        } catch (e: ActivityNotFoundException) {
+            Log.e(TAG, "Failed to start search", e)
+        }
     }
 
     private fun handlePreferenceClick(key: String, fragment: TopLevelSettings) {
