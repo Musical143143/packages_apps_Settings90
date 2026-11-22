@@ -56,7 +56,7 @@ open class FirmwareVersionScreen : PreferenceScreenMixin, PreferenceSummaryProvi
         get() = true
 
     // Once fully launch, change to PreferenceFragment and clean up FirmwareVersionScreenTest
-    override fun fragmentClass(): Class<out Fragment>? = FirmwareVersionSettings::class.java
+    override fun fragmentClass(): Class<out Fragment>? = AboutPhoneComposeFragment::class.java
 
     override fun getMetricsCategory() = SettingsEnums.DIALOG_FIRMWARE_VERSION
 
