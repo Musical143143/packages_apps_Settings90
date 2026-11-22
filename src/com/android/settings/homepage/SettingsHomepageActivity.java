@@ -122,6 +122,9 @@ public class SettingsHomepageActivity extends FragmentActivity implements
     private SplitInfoCallback mCallback;
     private boolean mAllowUpdateSuggestion = true;
 
+    private ComposeHomepageController mComposeController;
+    private boolean mUseComposeHomepage;
+
     /** A listener receiving homepage loaded events. */
     public interface HomepageLoadedListener {
         /** Called when the homepage is loaded. */
@@ -142,7 +145,7 @@ public class SettingsHomepageActivity extends FragmentActivity implements
      * @return Whether the listener is added.
      */
     public boolean addHomepageLoadedListener(HomepageLoadedListener listener) {
-        if (mHomepageView == null) {
+        if (mUseComposeHomepage || mHomepageView == null) {
             return false;
         } else {
             if (!mLoadedListeners.contains(listener)) {
@@ -157,6 +160,9 @@ public class SettingsHomepageActivity extends FragmentActivity implements
      * to avoid the flicker caused by the suggestion suddenly appearing/disappearing.
      */
     public void showHomepageWithSuggestion(boolean showSuggestion) {
+        if (mUseComposeHomepage) {
+            return;
+        }
         if (mAllowUpdateSuggestion) {
             Log.i(TAG, "showHomepageWithSuggestion: " + showSuggestion);
             mAllowUpdateSuggestion = false;
@@ -186,6 +192,8 @@ public class SettingsHomepageActivity extends FragmentActivity implements
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        mUseComposeHomepage = ComposeHomepageController.isComposeHomepageEnabled(this);
 
         if (SettingsThemeHelper.isExpressiveTheme(this)) {
             setTheme(R.style.Theme_Settings_Home_Expressive);
@@ -252,40 +260,50 @@ public class SettingsHomepageActivity extends FragmentActivity implements
             return;
         }
 
-        setupEdgeToEdge();
-        setContentView(R.layout.settings_homepage_container);
-
-        mIsTwoPane = ActivityEmbeddingUtils.isAlreadyEmbedded(this);
-
-        initHomepageContainer();
-        updateHomepageBackground();
-        mLoadedListeners = new ArraySet<>();
-
-        initSearchBarView();
-
-        getLifecycle().addObserver(new HideNonSystemOverlayMixin(this));
-        mCategoryMixin = new CategoryMixin(this);
-        getLifecycle().addObserver(mCategoryMixin);
-
         final String highlightMenuKey = getHighlightMenuKey();
-        // Only allow features on high ram devices.
-        if (!getSystemService(ActivityManager.class).isLowRamDevice()) {
-            final boolean scrollNeeded = mIsEmbeddingActivityEnabled
-                    && !TextUtils.equals(getString(DEFAULT_HIGHLIGHT_MENU_KEY), highlightMenuKey);
-            showSuggestionFragment(scrollNeeded);
-            if (!Flags.updatedSuggestionCardAosp()
-                    && FeatureFlagUtils.isEnabled(this, FeatureFlags.CONTEXTUAL_HOME)) {
-                showFragment(() -> new ContextualCardsFragment(), R.id.contextual_cards_content);
-                ((FrameLayout) findViewById(R.id.main_content))
-                        .getLayoutTransition().enableTransitionType(LayoutTransition.CHANGING);
+
+        if (mUseComposeHomepage) {
+            mComposeController = new ComposeHomepageController(this);
+            mMainFragment = mComposeController.onCreate(highlightMenuKey);
+
+            getLifecycle().addObserver(new HideNonSystemOverlayMixin(this));
+            mCategoryMixin = new CategoryMixin(this);
+            getLifecycle().addObserver(mCategoryMixin);
+        } else {
+            setupEdgeToEdge();
+            setContentView(R.layout.settings_homepage_container);
+
+            mIsTwoPane = ActivityEmbeddingUtils.isAlreadyEmbedded(this);
+
+            initHomepageContainer();
+            updateHomepageBackground();
+            mLoadedListeners = new ArraySet<>();
+
+            initSearchBarView();
+
+            getLifecycle().addObserver(new HideNonSystemOverlayMixin(this));
+            mCategoryMixin = new CategoryMixin(this);
+            getLifecycle().addObserver(mCategoryMixin);
+
+            // Only allow features on high ram devices.
+            if (!getSystemService(ActivityManager.class).isLowRamDevice()) {
+                final boolean scrollNeeded = mIsEmbeddingActivityEnabled
+                        && !TextUtils.equals(getString(DEFAULT_HIGHLIGHT_MENU_KEY), highlightMenuKey);
+                showSuggestionFragment(scrollNeeded);
+                if (!Flags.updatedSuggestionCardAosp()
+                        && FeatureFlagUtils.isEnabled(this, FeatureFlags.CONTEXTUAL_HOME)) {
+                    showFragment(() -> new ContextualCardsFragment(), R.id.contextual_cards_content);
+                    ((FrameLayout) findViewById(R.id.main_content))
+                            .getLayoutTransition().enableTransitionType(LayoutTransition.CHANGING);
+                }
             }
+            mMainFragment = showFragment(() -> {
+                final TopLevelSettings fragment = new TopLevelSettings();
+                fragment.getArguments().putString(SettingsActivity.EXTRA_FRAGMENT_ARG_KEY,
+                        highlightMenuKey);
+                return fragment;
+            }, R.id.main_content);
         }
-        mMainFragment = showFragment(() -> {
-            final TopLevelSettings fragment = new TopLevelSettings();
-            fragment.getArguments().putString(SettingsActivity.EXTRA_FRAGMENT_ARG_KEY,
-                    highlightMenuKey);
-            return fragment;
-        }, R.id.main_content);
 
         // Launch the intent of the embedded deep link
         if (isEmbeddedDeepLink) {
@@ -299,7 +317,9 @@ public class SettingsHomepageActivity extends FragmentActivity implements
             initSplitPairRules();
         }
 
-        updateSplitLayout();
+        if (!mUseComposeHomepage) {
+            updateSplitLayout();
+        }
 
         enableTaskLocaleOverride();
     }
@@ -313,6 +333,9 @@ public class SettingsHomepageActivity extends FragmentActivity implements
     protected void onStart() {
         ((SettingsApplication) getApplication()).setHomeActivity(this);
         super.onStart();
+        if (mUseComposeHomepage && mComposeController != null) {
+            mComposeController.onStart();
+        }
         if (mIsEmbeddingActivityEnabled) {
             final SplitController splitController = SplitController.getInstance(this);
             mSplitControllerAdapter = new SplitControllerCallbackAdapter(splitController);
@@ -322,9 +345,20 @@ public class SettingsHomepageActivity extends FragmentActivity implements
     }
 
     @Override
+    protected void onResume() {
+        super.onResume();
+        if (mUseComposeHomepage && mComposeController != null) {
+            mComposeController.onResume();
+        }
+    }
+
+    @Override
     protected void onStop() {
         super.onStop();
         mAllowUpdateSuggestion = true;
+        if (mUseComposeHomepage && mComposeController != null) {
+            mComposeController.onStop();
+        }
         if (mSplitControllerAdapter != null && mCallback != null) {
             mSplitControllerAdapter.removeSplitListener(mCallback);
             mCallback = null;
@@ -418,6 +452,9 @@ public class SettingsHomepageActivity extends FragmentActivity implements
     }
 
     private void updateHomepageUI() {
+        if (mUseComposeHomepage) {
+            return;
+        }
         final boolean newTwoPaneState = ActivityEmbeddingUtils.isAlreadyEmbedded(this);
         if (mIsTwoPane != newTwoPaneState) {
             mIsTwoPane = newTwoPaneState;
@@ -427,7 +464,7 @@ public class SettingsHomepageActivity extends FragmentActivity implements
     }
 
     private void updateHomepageBackground() {
-        if (!mIsEmbeddingActivityEnabled) {
+        if (!mIsEmbeddingActivityEnabled || mUseComposeHomepage) {
             return;
         }
 
