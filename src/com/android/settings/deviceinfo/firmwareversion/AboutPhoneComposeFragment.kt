@@ -36,7 +36,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.weight
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -59,6 +58,7 @@ import androidx.compose.ui.unit.dp
 import androidx.fragment.app.Fragment
 import androidx.preference.Preference
 import com.android.settings.widget.setSettingsContent
+import com.android.settingslib.metadata.PreferenceAvailabilityProvider
 import com.android.settingslib.metadata.PreferenceMetadata
 import com.android.settingslib.metadata.PreferenceSummaryProvider
 
@@ -115,7 +115,7 @@ private fun buildAboutRows(context: Context): List<AboutRowModel> {
         SimpleBuildNumberPreference(),
     )
     return items
-        .filter { it.isAvailable(context) }
+        .filter { (it as? PreferenceAvailabilityProvider)?.isAvailable(context) ?: true }
         .map { meta ->
             AboutRowModel(
                 title = context.getString(meta.title),
