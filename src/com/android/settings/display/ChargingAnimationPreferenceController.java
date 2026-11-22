@@ -51,4 +51,9 @@ public class ChargingAnimationPreferenceController extends TogglePreferenceContr
         return Settings.System.putIntForUser(mContext.getContentResolver(), SETTING_KEY,
                 isChecked ? 1 : 0, UserHandle.USER_CURRENT);
     }
+
+    @Override
+    public int getSliceHighlightMenuRes() {
+        return 0;
+    }
 }
