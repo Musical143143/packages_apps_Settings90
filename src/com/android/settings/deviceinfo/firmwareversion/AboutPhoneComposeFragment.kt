@@ -91,6 +91,7 @@ import androidx.compose.foundation.Image
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import com.android.settings.R
+import androidx.compose.foundation.layout.aspectRatio
 
 /**
  * One row on the About phone page, built from the existing preference metadata.
@@ -241,43 +242,16 @@ private fun AboutPhoneContent(onBack: () -> Unit) {
                 }
             }
 
-            // Hero logo block
+            // Hero: the design artwork (logo, CUSTOM ROM and tagline are part of the image).
             item {
-                Column(
-                    modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                ) {
-                    Row(verticalAlignment = Alignment.Bottom) {
-                        Text(
-                            text = "Evolution",
-                            fontSize = 46.sp,
-                            fontWeight = FontWeight.Black,
-                            fontStyle = FontStyle.Italic,
-                            color = ink,
-                        )
-                        Spacer(Modifier.width(6.dp))
-                        Text(
-                            text = "X",
-                            fontSize = 52.sp,
-                            fontWeight = FontWeight.Black,
-                            fontStyle = FontStyle.Italic,
-                            color = Color(0xFFD946EF),
-                        )
-                    }
-                    Text(
-                        text = "CUSTOM  ROM",
-                        style = MaterialTheme.typography.labelLarge,
-                        letterSpacing = 0.5f.em,
-                        color = soft,
-                    )
-                    Spacer(Modifier.height(6.dp))
-                    Text(
-                        text = "Bigger  •  Better  •  Smoother",
-                        fontStyle = FontStyle.Italic,
-                        style = MaterialTheme.typography.bodyLarge,
-                        color = soft,
-                    )
-                }
+                Image(
+                    painter = painterResource(R.drawable.about_hero_bg),
+                    contentDescription = null,
+                    contentScale = ContentScale.FillWidth,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .aspectRatio(852f / 310f),
+                )
             }
 
             // Device card
@@ -331,16 +305,16 @@ private fun AboutPhoneContent(onBack: () -> Unit) {
 
             // Info rows
             val infoRows = listOf(
-                Triple("FirmwareVersionDetailPreference", Icons.Filled.Done, Color(0xFF4ADE80)),
-                Triple("LineageVersionDetailPreference", Icons.Filled.Star, Color(0xFFD946EF)),
-                Triple("SecurityPatchLevelPreference", Icons.Filled.Check, Color(0xFF22D3EE)),
-                Triple("LineageVendorSecurityPatchLevelPreference", Icons.Filled.Lock, Color(0xFFC026D3)),
-                Triple("BasebandVersionPreference", BuildIcon, Color(0xFF3B82F6)),
-                Triple("KernelVersionPreference", Icons.Filled.Settings, Color(0xFF2563EB)),
-                Triple("LineageBuildDatePreference", Icons.Filled.DateRange, Color(0xFF3B82F6)),
-                Triple("SimpleBuildNumberPreference", Icons.Filled.Info, Color(0xFF2563EB)),
+                "FirmwareVersionDetailPreference" to R.drawable.about_icon_android,
+                "LineageVersionDetailPreference" to R.drawable.about_icon_evolution,
+                "SecurityPatchLevelPreference" to R.drawable.about_icon_security,
+                "LineageVendorSecurityPatchLevelPreference" to R.drawable.about_icon_vendor,
+                "BasebandVersionPreference" to R.drawable.about_icon_baseband,
+                "KernelVersionPreference" to R.drawable.about_icon_kernel,
+                "LineageBuildDatePreference" to R.drawable.about_icon_date,
+                "SimpleBuildNumberPreference" to R.drawable.about_icon_build,
             )
-            items(infoRows) { (role, icon, tint) ->
+            items(infoRows) { (role, iconRes) ->
                 val model = row(role) ?: return@items
                 Surface(
                     modifier = Modifier
@@ -354,7 +328,11 @@ private fun AboutPhoneContent(onBack: () -> Unit) {
                         modifier = Modifier.padding(horizontal = 16.dp, vertical = 14.dp),
                         verticalAlignment = Alignment.CenterVertically,
                     ) {
-                        Icon(icon, contentDescription = null, tint = tint, modifier = Modifier.size(40.dp))
+                        Image(
+                            painter = painterResource(iconRes),
+                            contentDescription = null,
+                            modifier = Modifier.size(44.dp),
+                        )
                         Spacer(Modifier.width(16.dp))
                         Column(modifier = Modifier.weight(1f)) {
                             Text(text = model.title, style = MaterialTheme.typography.titleMedium, color = ink)
