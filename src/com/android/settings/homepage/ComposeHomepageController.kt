@@ -44,6 +44,7 @@ import android.app.settings.SettingsEnums
 import android.content.ComponentName
 import android.content.pm.PackageManager
 import android.app.ActivityOptions
+import android.widget.Toast
 import android.content.ActivityNotFoundException
 
 class ComposeHomepageController(private val activity: SettingsHomepageActivity) {
@@ -187,13 +188,19 @@ class ComposeHomepageController(private val activity: SettingsHomepageActivity) 
      * crashes the homepage.
      */
     private fun launchSearch() {
-        val intent = FeatureFactory.featureFactory.searchFeatureProvider
+        val explicit = FeatureFactory.featureFactory.searchFeatureProvider
             .buildSearchIntent(activity, SettingsEnums.SETTINGS_HOMEPAGE)
             .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
-        val resolved = activity.packageManager.queryIntentActivities(
-            intent, PackageManager.MATCH_DEFAULT_ONLY)
-        if (resolved.isEmpty()) {
-            Log.w(TAG, "No search activity available; ignoring search click")
+        // Settings Intelligence may be missing or under another package; fall back to any app
+        // that handles the search action rather than doing nothing.
+        val implicit = Intent(explicit).setPackage(null)
+        val intent = listOf(explicit, implicit).firstOrNull {
+            activity.packageManager.queryIntentActivities(it, PackageManager.MATCH_DEFAULT_ONLY)
+                .isNotEmpty()
+        }
+        if (intent == null) {
+            Log.w(TAG, "No search activity available")
+            Toast.makeText(activity, R.string.search_unavailable, Toast.LENGTH_SHORT).show()
             return
         }
         try {
@@ -201,6 +208,7 @@ class ComposeHomepageController(private val activity: SettingsHomepageActivity) 
             activity.startActivity(intent, options)
         } catch (e: ActivityNotFoundException) {
             Log.e(TAG, "Failed to start search", e)
+            Toast.makeText(activity, R.string.search_unavailable, Toast.LENGTH_SHORT).show()
         }
     }
 
