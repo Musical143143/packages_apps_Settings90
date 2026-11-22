@@ -140,6 +140,12 @@ internal fun IconShape.containerShape(): Shape = when (this) {
     IconShape.COOKIE_4 -> MaterialShapes.Cookie4Sided.toShape()
     IconShape.COOKIE_6 -> MaterialShapes.Cookie6Sided.toShape()
     IconShape.CLOVER_4 -> MaterialShapes.Clover4Leaf.toShape()
+    IconShape.SQUARE -> MaterialShapes.Square.toShape()
+    IconShape.DIAMOND -> MaterialShapes.Diamond.toShape()
+    IconShape.PENTAGON -> MaterialShapes.Pentagon.toShape()
+    IconShape.SUNNY -> MaterialShapes.Sunny.toShape()
+    IconShape.COOKIE_9 -> MaterialShapes.Cookie9Sided.toShape()
+    IconShape.CLOVER_8 -> MaterialShapes.Clover8Leaf.toShape()
 }
 
 @Composable
@@ -500,6 +506,12 @@ internal fun HomepageDivider(
             color = scheme.outlineVariant.copy(alpha = 0.8f),
         )
 
+        DividerStyle.DOUBLE -> Column {
+            HorizontalDivider(color = scheme.outlineVariant.copy(alpha = 0.4f))
+            Spacer(Modifier.height(3.dp))
+            HorizontalDivider(color = scheme.outlineVariant.copy(alpha = 0.4f))
+        }
+
         DividerStyle.SPLIT -> Unit
     }
 }
@@ -550,7 +562,17 @@ private fun Chevron(style: ChevronStyle, size: Dp = 24.dp) {
             modifier = Modifier.size(size),
         )
     }
-    if (style == ChevronStyle.CONTAINED) {
+    if (style == ChevronStyle.SQUARE) {
+        Box(
+            modifier = Modifier
+                .size(size + CHEVRON_CONTAINER_PADDING * 2)
+                .clip(RoundedCornerShape(8.dp))
+                .background(MaterialTheme.colorScheme.surfaceContainerHighest),
+            contentAlignment = Alignment.Center,
+        ) {
+            glyph()
+        }
+    } else if (style == ChevronStyle.CONTAINED) {
         Box(
             modifier = Modifier
                 .size(size + CHEVRON_CONTAINER_PADDING * 2)

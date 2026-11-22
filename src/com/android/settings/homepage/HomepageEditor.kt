@@ -1207,6 +1207,12 @@ internal fun IconShape.displayName(): String = when (this) {
     IconShape.COOKIE_4 -> "Cookie 4"
     IconShape.COOKIE_6 -> "Cookie 6"
     IconShape.CLOVER_4 -> "Clover"
+    IconShape.SQUARE -> "Square"
+    IconShape.DIAMOND -> "Diamond"
+    IconShape.PENTAGON -> "Pentagon"
+    IconShape.SUNNY -> "Sunny"
+    IconShape.COOKIE_9 -> "Cookie 9"
+    IconShape.CLOVER_8 -> "Clover 8"
 }
 
 internal fun IconPosition.displayName(): String = when (this) {
@@ -1217,6 +1223,7 @@ internal fun IconPosition.displayName(): String = when (this) {
 internal fun ChevronStyle.displayName(): String = when (this) {
     ChevronStyle.PLAIN -> "Plain"
     ChevronStyle.CONTAINED -> "On a circle"
+    ChevronStyle.SQUARE -> "Square"
     ChevronStyle.HIDDEN -> "Hidden"
 }
 
@@ -1224,6 +1231,8 @@ internal fun CornerStyle.displayName(): String = when (this) {
     CornerStyle.SOFT -> "Soft"
     CornerStyle.ROUNDED -> "Rounded"
     CornerStyle.PILL -> "Pill"
+    CornerStyle.SHARP -> "Sharp"
+    CornerStyle.EXTRA_ROUND -> "Extra round"
 }
 
 internal fun DividerStyle.displayName(): String = when (this) {
@@ -1232,6 +1241,7 @@ internal fun DividerStyle.displayName(): String = when (this) {
     DividerStyle.INSET -> "Inset"
     DividerStyle.FULL -> "Full"
     DividerStyle.THICK -> "Thick"
+    DividerStyle.DOUBLE -> "Double"
     DividerStyle.SPLIT -> "Split cards"
 }
 
