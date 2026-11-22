@@ -685,11 +685,6 @@ private fun SearchBarBody(size: TileSize, hint: String) {
     }
 }
 
-/** Enters homepage edit mode; null while editing or when edit is unavailable. */
-internal object HomepageEditBridge {
-    var onLongPressEdit: (() -> Unit)? = null
-}
-
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 internal fun PinnedSearchBar(
@@ -698,10 +693,11 @@ internal fun PinnedSearchBar(
     modifier: Modifier = Modifier,
     elevated: Boolean = true,
     glass: HomepageGlassBackdrop? = null,
+    onLongEdit: (() -> Unit)? = null,
 ) {
     val shape = RoundedCornerShape(SEARCH_BAR_RADIUS)
     var menuOpen by remember { mutableStateOf(false) }
-    val canEdit = HomepageEditBridge.onLongPressEdit != null
+    val canEdit = onLongEdit != null
     val openMenu: () -> Unit = { menuOpen = true }
     Box(modifier = modifier) {
     Surface(
@@ -744,7 +740,7 @@ internal fun PinnedSearchBar(
             text = { Text(stringResource(R.string.homepage_edit_action)) },
             onClick = {
                 menuOpen = false
-                HomepageEditBridge.onLongPressEdit?.invoke()
+                onLongEdit?.invoke()
             },
         )
     }

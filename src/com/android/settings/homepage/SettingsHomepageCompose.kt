@@ -268,13 +268,11 @@ fun SettingsHomepageScreen(
     SideEffect {
         editController.isEditing = editing
         editController.discard = discardEdits
-        HomepageEditBridge.onLongPressEdit = if (editing) null else enterEditMode
     }
     DisposableEffect(editController) {
         onDispose {
             editController.discard = null
             editController.isEditing = false
-            HomepageEditBridge.onLongPressEdit = null
         }
     }
 
@@ -349,6 +347,7 @@ fun SettingsHomepageScreen(
                                     editing = editing,
                                     onAvatarClick = onAvatarClick,
                                     onSearchClick = onSearchClick,
+                                    onLongEdit = if (editing) null else enterEditMode,
                                     onLayout = { layout = it },
                                     onPickIconColor = { colorTarget = ColorTarget.Page },
                                     onPickIconShape = { shapeTarget = ShapeTarget.Page },
@@ -617,6 +616,7 @@ private fun ChromeContent(
     editing: Boolean,
     onAvatarClick: () -> Unit,
     onSearchClick: () -> Unit,
+    onLongEdit: (() -> Unit)?,
     onLayout: (HomepageLayout) -> Unit,
     onPickIconColor: () -> Unit,
     onPickIconShape: () -> Unit,
@@ -652,6 +652,7 @@ private fun ChromeContent(
             onClick = { if (!editing) onSearchClick() },
             modifier = modifier.fillMaxWidth(),
             elevated = false,
+            onLongEdit = onLongEdit,
         )
 
         ChromeKind.SEARCH_BREAK -> CardBreakCell(
@@ -721,6 +722,7 @@ private fun BottomChrome(
                         onClick = onSearchClick,
                         glass = glass,
                         modifier = Modifier.weight(1f),
+                        onLongEdit = if (editing) null else onEnterEditMode,
                     )
                     if (showEditButton) {
                         Spacer(Modifier.width(10.dp))
