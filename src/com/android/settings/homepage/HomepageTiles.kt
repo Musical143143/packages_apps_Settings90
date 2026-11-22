@@ -697,13 +697,13 @@ internal fun HomepageDivider(
         )
 
         DividerStyle.GROOVE -> Column {
-            HorizontalDivider(thickness = 1.dp, color = scheme.shadow.copy(alpha = 0.25f))
+            HorizontalDivider(thickness = 1.dp, color = Color.Black.copy(alpha = 0.25f))
             HorizontalDivider(thickness = 1.dp, color = scheme.surfaceBright)
         }
 
         DividerStyle.RAISED -> Column {
             HorizontalDivider(thickness = 1.dp, color = scheme.surfaceBright)
-            HorizontalDivider(thickness = 1.dp, color = scheme.shadow.copy(alpha = 0.25f))
+            HorizontalDivider(thickness = 1.dp, color = Color.Black.copy(alpha = 0.25f))
         }
 
         DividerStyle.CENTER_DIAMOND -> DividerCanvas {
