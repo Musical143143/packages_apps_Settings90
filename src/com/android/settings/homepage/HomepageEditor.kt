@@ -15,6 +15,7 @@
  */
 package com.android.settings.homepage
 
+import com.android.settings.R
 import androidx.annotation.DrawableRes
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.BorderStroke
@@ -28,6 +29,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -78,6 +80,7 @@ import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
@@ -98,40 +101,52 @@ internal fun EditModeButton(
     modifier: Modifier = Modifier,
     glass: HomepageGlassBackdrop? = null,
 ) {
+    val pill = RoundedCornerShape(50)
     Surface(
         modifier = modifier
-            .size(SEARCH_BAR_HEIGHT)
-            .clip(CircleShape)
+            .height(SEARCH_BAR_HEIGHT)
+            .clip(pill)
             .then(
                 if (glass != null) {
                     Modifier
                         .homepageGlass(
                             backdrop = glass,
-                            shape = CircleShape,
+                            shape = pill,
                             tint = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.3f),
                             highlight = MaterialTheme.colorScheme.surfaceBright.copy(alpha = 0.5f),
                         )
                         .border(
                             1.dp,
                             MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.7f),
-                            CircleShape,
+                            pill,
                         )
                 } else {
                     Modifier
                 }
             )
             .clickable(onClick = onClick),
-        shape = CircleShape,
+        shape = pill,
         color = if (glass != null) Color.Transparent else MaterialTheme.colorScheme.primaryContainer,
         shadowElevation = if (glass != null) 0.dp else 12.dp,
         tonalElevation = if (glass != null) 0.dp else 6.dp,
     ) {
-        Box(contentAlignment = Alignment.Center) {
+        Row(
+            modifier = Modifier
+                .fillMaxHeight()
+                .padding(horizontal = 18.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
             Icon(
                 imageVector = Icons.Outlined.Edit,
                 contentDescription = "Customise homepage",
                 tint = MaterialTheme.colorScheme.onPrimaryContainer,
-                modifier = Modifier.size(22.dp),
+                modifier = Modifier.size(20.dp),
+            )
+            Spacer(Modifier.width(8.dp))
+            Text(
+                text = stringResource(R.string.homepage_edit_action),
+                style = MaterialTheme.typography.labelLarge,
+                color = MaterialTheme.colorScheme.onPrimaryContainer,
             )
         }
     }

@@ -49,6 +49,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.Edit
 import androidx.compose.material.icons.automirrored.outlined.KeyboardArrowRight
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
@@ -982,6 +983,13 @@ internal fun PinnedSearchBar(
     ) {
         DropdownMenuItem(
             text = { Text(stringResource(R.string.homepage_edit_action)) },
+            leadingIcon = {
+                Icon(
+                    imageVector = Icons.Outlined.Edit,
+                    contentDescription = null,
+                    modifier = Modifier.size(20.dp),
+                )
+            },
             onClick = {
                 menuOpen = false
                 onLongEdit?.invoke()
