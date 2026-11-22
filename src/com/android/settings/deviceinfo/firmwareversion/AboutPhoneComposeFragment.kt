@@ -48,25 +48,60 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.fragment.app.Fragment
+import androidx.preference.Preference
 import com.android.settings.widget.setSettingsContent
 import com.android.settingslib.metadata.PreferenceMetadata
 import com.android.settingslib.metadata.PreferenceSummaryProvider
 
-/** One row on the About phone page, built from the existing preference metadata. */
-private data class AboutRow(
+/**
+ * One row on the About phone page, built from the existing preference metadata.
+ * Taps go through the same listener the preference screen used, so the kernel
+ * row still toggles its version text and the easter-egg taps still work.
+ */
+private class AboutRowModel(
     val title: String,
-    val summary: String?,
-    val onClick: (() -> Unit)?,
-)
+    initialSummary: String?,
+    private val context: Context,
+    private val meta: PreferenceMetadata,
+    private val pref: Preference,
+) {
+    var summary: String? by mutableStateOf(initialSummary)
+
+    val clickable: Boolean
+        get() = meta is Preference.OnPreferenceClickListener || meta.intent(context) != null
+
+    fun onClick() {
+        val listener = meta as? Preference.OnPreferenceClickListener
+        // true swallows the click; false lets the row open its intent.
+        val swallowed = listener?.onPreferenceClick(pref) ?: false
+        if (listener != null) {
+            pref.summary?.toString()?.let { summary = it }
+        }
+        if (!swallowed) {
+            try {
+                meta.intent(context)?.let { context.startActivity(it) }
+            } catch (e: Exception) {
+                Log.w(TAG, "Unable to open ${meta.key}", e)
+            }
+        }
+    }
+
+    companion object {
+        private const val TAG = "AboutPhoneCompose"
+    }
+}
 
 /** Builds the rows from the same metadata the preference screen uses, so visibility and taps match. */
-private fun buildAboutRows(context: Context): List<AboutRow> {
+private fun buildAboutRows(context: Context): List<AboutRowModel> {
     val items: List<PreferenceMetadata> = listOf(
         AboutDeviceNamePreference(),
         FirmwareVersionDetailPreference(),
@@ -82,19 +117,12 @@ private fun buildAboutRows(context: Context): List<AboutRow> {
     return items
         .filter { it.isAvailable(context) }
         .map { meta ->
-            val intent = meta.intent(context)
-            AboutRow(
+            AboutRowModel(
                 title = context.getString(meta.title),
-                summary = (meta as? PreferenceSummaryProvider)?.getSummary(context)?.toString(),
-                onClick = intent?.let { i ->
-                    {
-                        try {
-                            context.startActivity(i)
-                        } catch (e: Exception) {
-                            Log.w(TAG, "Unable to open ${meta.key}", e)
-                        }
-                    }
-                },
+                initialSummary = (meta as? PreferenceSummaryProvider)?.getSummary(context)?.toString(),
+                context = context,
+                meta = meta,
+                pref = Preference(context),
             )
         }
 }
@@ -109,9 +137,6 @@ class AboutPhoneComposeFragment : Fragment() {
         setSettingsContent { AboutPhoneContent() }
     }
 
-    companion object {
-        private const val TAG = "AboutPhoneCompose"
-    }
 }
 
 @Composable
@@ -175,12 +200,12 @@ private fun AboutHero() {
 }
 
 @Composable
-private fun AboutRowItem(row: AboutRow) {
+private fun AboutRowItem(row: AboutRowModel) {
     val scheme = MaterialTheme.colorScheme
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .clickable(enabled = row.onClick != null) { row.onClick?.invoke() }
+            .clickable(enabled = row.clickable) { row.onClick() }
             .padding(horizontal = 16.dp, vertical = 14.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
