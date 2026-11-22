@@ -1027,12 +1027,27 @@ internal fun AppearancePanel(
                     )
 
                     SectionLabel("Dividers")
-                    ChipOptions(
-                        options = DividerStyle.values().toList(),
-                        selected = layout.dividerStyle,
-                        labelOf = { it.displayName() },
-                        onSelect = { onLayout(layout.copy(dividerStyle = it)) },
-                    )
+                    FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        DividerStyle.values().forEach { style ->
+                            val isSelected = layout.dividerStyle == style
+                            FilterChip(
+                                selected = isSelected,
+                                onClick = { onLayout(layout.copy(dividerStyle = style)) },
+                                label = { Text(style.label) },
+                                leadingIcon = if (isSelected) {
+                                    {
+                                        Icon(
+                                            imageVector = Icons.Filled.Check,
+                                            contentDescription = null,
+                                            modifier = Modifier.size(16.dp),
+                                        )
+                                    }
+                                } else {
+                                    null
+                                },
+                            )
+                        }
+                    }
 
                     Spacer(Modifier.height(16.dp))
                     Row(verticalAlignment = Alignment.CenterVertically) {
