@@ -92,6 +92,8 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import com.android.settings.R
 import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.lazy.items
 
 /**
  * One row on the About phone page, built from the existing preference metadata.
