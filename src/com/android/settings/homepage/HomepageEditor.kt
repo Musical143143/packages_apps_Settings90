@@ -84,6 +84,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.style.TextAlign
@@ -102,6 +103,15 @@ internal fun EditModeButton(
     glass: HomepageGlassBackdrop? = null,
 ) {
     val pill = RoundedCornerShape(50)
+    val isDark = MaterialTheme.colorScheme.surface.luminance() < 0.5f
+    val glassTint = if (isDark) Color.White.copy(alpha = 0.10f) else Color.White.copy(alpha = 0.42f)
+    val glassHighlight = if (isDark) Color.White.copy(alpha = 0.28f) else Color.White.copy(alpha = 0.9f)
+    val glassBorder = if (isDark) Color.White.copy(alpha = 0.22f) else Color.White.copy(alpha = 0.7f)
+    val ink = if (glass != null) {
+        MaterialTheme.colorScheme.onSurface
+    } else {
+        MaterialTheme.colorScheme.onPrimaryContainer
+    }
     Surface(
         modifier = modifier
             .height(SEARCH_BAR_HEIGHT)
@@ -112,12 +122,12 @@ internal fun EditModeButton(
                         .homepageGlass(
                             backdrop = glass,
                             shape = pill,
-                            tint = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.3f),
-                            highlight = MaterialTheme.colorScheme.surfaceBright.copy(alpha = 0.5f),
+                            tint = glassTint,
+                            highlight = glassHighlight,
                         )
                         .border(
                             1.dp,
-                            MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.7f),
+                            glassBorder,
                             pill,
                         )
                 } else {
@@ -139,14 +149,14 @@ internal fun EditModeButton(
             Icon(
                 imageVector = Icons.Outlined.Edit,
                 contentDescription = "Customise homepage",
-                tint = MaterialTheme.colorScheme.onPrimaryContainer,
+                tint = ink,
                 modifier = Modifier.size(20.dp),
             )
             Spacer(Modifier.width(8.dp))
             Text(
                 text = stringResource(R.string.homepage_edit_action),
                 style = MaterialTheme.typography.labelLarge,
-                color = MaterialTheme.colorScheme.onPrimaryContainer,
+                color = ink,
             )
         }
     }
