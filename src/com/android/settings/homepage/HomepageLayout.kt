@@ -18,6 +18,9 @@ package com.android.settings.homepage
 import android.content.Context
 import android.util.Log
 import androidx.compose.ui.unit.Dp
+import androidx.compose.foundation.shape.CutCornerShape
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.unit.dp
 import org.json.JSONArray
 import org.json.JSONObject
@@ -103,7 +106,15 @@ enum class ChevronStyle(val label: String, val corner: Dp?, val outlined: Boolea
     CHEVRON_R48_OUTLINED("Outline 48", 48.dp, true),
 }
 
-enum class CornerStyle(val label: String, val radius: Dp) {
+enum class CornerShapeKind {
+    ROUND, CUT, TOP, BOTTOM, START, END, DIAGONAL, REVERSE_DIAGONAL, LEAF, REVERSE_LEAF,
+}
+
+enum class CornerStyle(
+    val label: String,
+    val radius: Dp,
+    val kind: CornerShapeKind = CornerShapeKind.ROUND,
+) {
     SHARP("Sharp", 4.dp), SOFT("Soft", 16.dp), ROUNDED("Rounded", 24.dp), PILL("Pill", 32.dp),
     EXTRA_ROUND("Extra round", 40.dp),
     CORNER_2("2 dp", 2.dp), CORNER_6("6 dp", 6.dp), CORNER_8("8 dp", 8.dp), CORNER_10("10 dp", 10.dp),
@@ -113,6 +124,45 @@ enum class CornerStyle(val label: String, val radius: Dp) {
     CORNER_36("36 dp", 36.dp), CORNER_44("44 dp", 44.dp), CORNER_48("48 dp", 48.dp),
     CORNER_52("52 dp", 52.dp), CORNER_56("56 dp", 56.dp), CORNER_60("60 dp", 60.dp),
     CORNER_64("64 dp", 64.dp),
+    CUT_6("Cut 6 dp", 6.dp, CornerShapeKind.CUT),
+    CUT_12("Cut 12 dp", 12.dp, CornerShapeKind.CUT),
+    CUT_18("Cut 18 dp", 18.dp, CornerShapeKind.CUT),
+    CUT_24("Cut 24 dp", 24.dp, CornerShapeKind.CUT),
+    TOP_12("Top rounded 12 dp", 12.dp, CornerShapeKind.TOP),
+    TOP_24("Top rounded 24 dp", 24.dp, CornerShapeKind.TOP),
+    BOTTOM_12("Bottom rounded 12 dp", 12.dp, CornerShapeKind.BOTTOM),
+    BOTTOM_24("Bottom rounded 24 dp", 24.dp, CornerShapeKind.BOTTOM),
+    START_12("Left rounded 12 dp", 12.dp, CornerShapeKind.START),
+    START_24("Left rounded 24 dp", 24.dp, CornerShapeKind.START),
+    END_12("Right rounded 12 dp", 12.dp, CornerShapeKind.END),
+    END_24("Right rounded 24 dp", 24.dp, CornerShapeKind.END),
+    DIAG_12("Diagonal 12 dp", 12.dp, CornerShapeKind.DIAGONAL),
+    DIAG_24("Diagonal 24 dp", 24.dp, CornerShapeKind.DIAGONAL),
+    RDIAG_12("Reverse diagonal 12 dp", 12.dp, CornerShapeKind.REVERSE_DIAGONAL),
+    RDIAG_24("Reverse diagonal 24 dp", 24.dp, CornerShapeKind.REVERSE_DIAGONAL),
+    LEAF_12("Leaf 12 dp", 12.dp, CornerShapeKind.LEAF),
+    LEAF_24("Leaf 24 dp", 24.dp, CornerShapeKind.LEAF),
+    RLEAF_12("Reverse leaf 12 dp", 12.dp, CornerShapeKind.REVERSE_LEAF),
+    RLEAF_24("Reverse leaf 24 dp", 24.dp, CornerShapeKind.REVERSE_LEAF),
+}
+
+/** Builds the tile/surface shape for a corner style. */
+fun CornerStyle.toShape(): Shape {
+    val r = radius
+    val s = 4.dp
+    val none = 0.dp
+    return when (kind) {
+        CornerShapeKind.ROUND -> RoundedCornerShape(r)
+        CornerShapeKind.CUT -> CutCornerShape(r)
+        CornerShapeKind.TOP -> RoundedCornerShape(topStart = r, topEnd = r, bottomEnd = none, bottomStart = none)
+        CornerShapeKind.BOTTOM -> RoundedCornerShape(topStart = none, topEnd = none, bottomEnd = r, bottomStart = r)
+        CornerShapeKind.START -> RoundedCornerShape(topStart = r, topEnd = none, bottomEnd = none, bottomStart = r)
+        CornerShapeKind.END -> RoundedCornerShape(topStart = none, topEnd = r, bottomEnd = r, bottomStart = none)
+        CornerShapeKind.DIAGONAL -> RoundedCornerShape(topStart = r, topEnd = none, bottomEnd = r, bottomStart = none)
+        CornerShapeKind.REVERSE_DIAGONAL -> RoundedCornerShape(topStart = none, topEnd = r, bottomEnd = none, bottomStart = r)
+        CornerShapeKind.LEAF -> RoundedCornerShape(topStart = r, topEnd = s, bottomEnd = r, bottomStart = s)
+        CornerShapeKind.REVERSE_LEAF -> RoundedCornerShape(topStart = s, topEnd = r, bottomEnd = s, bottomStart = r)
+    }
 }
 
 enum class DividerStyle(val label: String, val thickness: Dp = 1.dp, val alpha: Float = 0.4f) {

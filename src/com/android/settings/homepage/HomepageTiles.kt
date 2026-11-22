@@ -122,7 +122,7 @@ internal val SEARCH_HINTS = listOf(
 )
 
 data class TileStyle(
-    val corner: Dp,
+    val cornerShape: Shape,
     val iconStyle: IconStyle,
     val showSummaries: Boolean,
     val dividerStyle: DividerStyle,
@@ -133,7 +133,7 @@ data class TileStyle(
 )
 
 fun HomepageLayout.tileStyle(): TileStyle = TileStyle(
-    corner = cornerStyle.radius,
+    cornerShape = cornerStyle.toShape(),
     iconStyle = iconStyle,
     showSummaries = showSummaries,
     dividerStyle = dividerStyle,
@@ -293,9 +293,9 @@ internal fun HomepageTile(
         modifier = modifier
             .fillMaxWidth()
             .then(if (height != null) Modifier.height(height) else Modifier)
-            .clip(RoundedCornerShape(style.corner))
+            .clip(style.cornerShape)
             .then(if (clickable) Modifier.clickable(onClick = onClick) else Modifier),
-        shape = RoundedCornerShape(style.corner),
+        shape = style.cornerShape,
         color = cardSurfaceColor(backdrop),
         contentColor = MaterialTheme.colorScheme.onSurface,
     ) {
@@ -487,7 +487,7 @@ internal fun HomepageCard(
     }
     Surface(
         modifier = modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(style.corner),
+        shape = style.cornerShape,
         color = cardSurfaceColor(backdrop),
         contentColor = MaterialTheme.colorScheme.onSurface,
     ) {

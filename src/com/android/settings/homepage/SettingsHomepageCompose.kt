@@ -666,7 +666,7 @@ private fun ChromeContent(
             items = layout.hiddenOrder().mapNotNull { key ->
                 catalog.find(key)?.let { layout.resolve(it) }
             },
-            corner = layout.cornerStyle.radius,
+            cornerShape = layout.cornerStyle.toShape(),
             onRestore = { onLayout(layout.setHidden(it, false)) },
             modifier = modifier,
         )

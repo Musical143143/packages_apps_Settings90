@@ -86,6 +86,7 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.unit.dp
 
 private val RESIZE_STEP = 44.dp
@@ -772,7 +773,7 @@ internal fun AppearancePanel(
     var expanded by rememberSaveable { mutableStateOf(false) }
     Surface(
         modifier = modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(layout.cornerStyle.radius),
+        shape = layout.cornerStyle.toShape(),
         color = MaterialTheme.colorScheme.surfaceBright,
     ) {
         Column(modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)) {
@@ -1023,13 +1024,13 @@ internal fun AppearancePanel(
 @Composable
 internal fun HiddenTray(
     items: List<HomepageItem>,
-    corner: Dp,
+    cornerShape: Shape,
     onRestore: (String) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     Surface(
         modifier = modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(corner),
+        shape = cornerShape,
         color = Color.Transparent,
         border = BorderStroke(
             1.dp,
