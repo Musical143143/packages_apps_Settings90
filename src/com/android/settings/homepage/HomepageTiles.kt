@@ -171,7 +171,7 @@ internal fun IconShape.containerShape(): Shape = when (this) {
     IconShape.SOFT_BOOM -> MaterialShapes.SoftBoom.toShape()
     IconShape.BURST -> MaterialShapes.Burst.toShape()
     IconShape.SOFT_BURST -> MaterialShapes.SoftBurst.toShape()
-    IconShape.PILL_STAR -> MaterialShapes.PillStar.toShape()
+    IconShape.PILL_STAR -> MaterialShapes.Pill.toShape()
     IconShape.PIXEL_CIRCLE -> MaterialShapes.PixelCircle.toShape()
     IconShape.VERY_SUNNY -> MaterialShapes.VerySunny.toShape()
     IconShape.COOKIE_7 -> MaterialShapes.Cookie7Sided.toShape()
