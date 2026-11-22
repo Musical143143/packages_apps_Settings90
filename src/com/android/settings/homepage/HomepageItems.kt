@@ -137,6 +137,17 @@ fun rememberHomepageCatalog(
 ): HomepageCatalog {
     val builder = CatalogBuilder()
 
+    // Evolution entry, first in the list like the classic homepage (top_level_evolver).
+    builder.add(
+        HomepageItem(
+            key = "top_level_evolver",
+            title = stringResource(R.string.evolver_dashboard_title),
+            summary = stringResource(R.string.evolver_dashboard_summary),
+            iconRes = R.drawable.ic_settings_evolution_filled,
+        )
+    )
+    builder.cardBreak()
+
     builder.addIf(
         isGoogleAvailable,
         HomepageItem(
