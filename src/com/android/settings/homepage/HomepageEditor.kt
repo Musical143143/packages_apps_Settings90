@@ -104,74 +104,49 @@ internal fun EditModeButton(
     modifier: Modifier = Modifier,
     glass: HomepageGlassBackdrop? = null,
 ) {
-    val pill = RoundedCornerShape(50)
+    val circle = CircleShape
     val scheme = MaterialTheme.colorScheme
     val isDark = scheme.surface.luminance() < 0.5f
     val isGlass = glass != null
-    val glassTint = if (isDark) Color.White.copy(alpha = 0.10f) else Color.White.copy(alpha = 0.42f)
-    val glassHighlight = if (isDark) Color.White.copy(alpha = 0.28f) else Color.White.copy(alpha = 0.9f)
-    val glassBorder = if (isDark) Color.White.copy(alpha = 0.22f) else Color.White.copy(alpha = 0.7f)
-    val gradient = Brush.linearGradient(listOf(scheme.primary, scheme.tertiary))
+    // Frosted glass: a translucent white wash plus a soft rim, tuned per theme.
+    val glassTint = if (isDark) Color.White.copy(alpha = 0.12f) else Color.White.copy(alpha = 0.45f)
+    val glassHighlight = if (isDark) Color.White.copy(alpha = 0.30f) else Color.White.copy(alpha = 0.95f)
+    val glassRim = if (isDark) Color.White.copy(alpha = 0.24f) else Color.White.copy(alpha = 0.75f)
+    val solid = Brush.linearGradient(listOf(scheme.primary, scheme.tertiary))
     val ink = if (isGlass) scheme.onSurface else scheme.onPrimary
-    val iconBubble = if (isGlass) {
-        scheme.primary.copy(alpha = 0.18f)
-    } else {
-        scheme.onPrimary.copy(alpha = 0.16f)
-    }
-    Surface(
+    Box(
         modifier = modifier
-            .height(SEARCH_BAR_HEIGHT)
+            .size(SEARCH_BAR_HEIGHT)
             .shadow(
                 elevation = if (isGlass) 0.dp else 10.dp,
-                shape = pill,
+                shape = circle,
                 ambientColor = scheme.primary.copy(alpha = 0.35f),
                 spotColor = scheme.primary.copy(alpha = 0.35f),
             )
-            .clip(pill)
+            .clip(circle)
             .then(
                 if (isGlass) {
                     Modifier
                         .homepageGlass(
                             backdrop = glass!!,
-                            shape = pill,
+                            shape = circle,
                             tint = glassTint,
                             highlight = glassHighlight,
                         )
-                        .border(1.dp, glassBorder, pill)
+                        .border(1.dp, glassRim, circle)
                 } else {
-                    Modifier.background(gradient, pill)
+                    Modifier.background(solid, circle)
                 }
             )
             .clickable(onClick = onClick),
-        shape = pill,
-        color = Color.Transparent,
+        contentAlignment = Alignment.Center,
     ) {
-        Row(
-            modifier = Modifier
-                .fillMaxHeight()
-                .padding(start = 8.dp, end = 20.dp),
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            Box(
-                modifier = Modifier
-                    .size(32.dp)
-                    .background(iconBubble, CircleShape),
-                contentAlignment = Alignment.Center,
-            ) {
-                Icon(
-                    imageVector = Icons.Outlined.Edit,
-                    contentDescription = "Customise homepage",
-                    tint = ink,
-                    modifier = Modifier.size(18.dp),
-                )
-            }
-            Spacer(Modifier.width(10.dp))
-            Text(
-                text = stringResource(R.string.homepage_edit_action),
-                style = MaterialTheme.typography.labelLarge,
-                color = ink,
-            )
-        }
+        Icon(
+            imageVector = Icons.Outlined.Edit,
+            contentDescription = stringResource(R.string.homepage_edit_action),
+            tint = ink,
+            modifier = Modifier.size(22.dp),
+        )
     }
 }
 
