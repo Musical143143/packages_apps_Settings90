@@ -21,6 +21,12 @@ import android.graphics.Canvas
 import android.graphics.PorterDuff
 import androidx.annotation.DrawableRes
 import androidx.compose.animation.Crossfade
+import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -919,15 +925,41 @@ private fun SearchBarBody(size: TileSize, hint: String) {
         )
         if (size.width == TileWidth.FULL) {
             Spacer(modifier = Modifier.width(16.dp))
-            Text(
-                text = hint,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                style = MaterialTheme.typography.bodyLarge,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-            )
+            RgbHintText(text = hint)
         }
     }
+}
+
+/**
+ * Search hint that cycles through the hue wheel. Uses a slightly deeper,
+ * darker-value palette on light surfaces and a brighter, softer one on dark
+ * surfaces so the color stays readable in both modes.
+ */
+@Composable
+private fun RgbHintText(text: String, modifier: Modifier = Modifier) {
+    val isDark = MaterialTheme.colorScheme.surface.luminance() < 0.5f
+    val transition = rememberInfiniteTransition(label = "rgbHint")
+    val hue by transition.animateFloat(
+        initialValue = 0f,
+        targetValue = 360f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(durationMillis = 6000, easing = LinearEasing),
+            repeatMode = RepeatMode.Restart,
+        ),
+        label = "rgbHue",
+    )
+    Text(
+        text = text,
+        color = Color.hsv(
+            hue = hue,
+            saturation = if (isDark) 0.45f else 0.85f,
+            value = if (isDark) 1f else 0.7f,
+        ),
+        style = MaterialTheme.typography.bodyLarge,
+        maxLines = 1,
+        overflow = TextOverflow.Ellipsis,
+        modifier = modifier,
+    )
 }
 
 @OptIn(ExperimentalFoundationApi::class)
