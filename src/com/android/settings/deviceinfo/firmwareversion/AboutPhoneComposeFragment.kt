@@ -242,16 +242,30 @@ private fun AboutPhoneContent(onBack: () -> Unit) {
                 }
             }
 
-            // Hero: the design artwork (logo, CUSTOM ROM and tagline are part of the image).
+            // Hero: the design artwork, faded into the page for a layered look.
             item {
-                Image(
-                    painter = painterResource(R.drawable.about_hero_bg),
-                    contentDescription = null,
-                    contentScale = ContentScale.FillWidth,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .aspectRatio(852f / 310f),
-                )
+                Box(modifier = Modifier.fillMaxWidth().aspectRatio(852f / 310f)) {
+                    Image(
+                        painter = painterResource(R.drawable.about_hero_bg),
+                        contentDescription = null,
+                        contentScale = ContentScale.FillBounds,
+                        modifier = Modifier.fillMaxSize(),
+                    )
+                    Box(
+                        modifier = Modifier
+                            .align(Alignment.BottomCenter)
+                            .fillMaxWidth()
+                            .height(56.dp)
+                            .background(
+                                Brush.verticalGradient(
+                                    listOf(
+                                        Color.Transparent,
+                                        if (dark) Color(0xFF05060F) else Color(0xFFF6F3FF),
+                                    )
+                                )
+                            ),
+                    )
+                }
             }
 
             // Device card
@@ -260,7 +274,13 @@ private fun AboutPhoneContent(onBack: () -> Unit) {
                     modifier = Modifier.fillMaxWidth(),
                     shape = RoundedCornerShape(32.dp),
                     color = glass,
-                    border = BorderStroke(1.dp, rim),
+                    shadowElevation = 14.dp,
+                    border = BorderStroke(
+                        1.dp,
+                        Brush.linearGradient(
+                            listOf(Color(0x99D946EF), Color(0x6638BDF8), Color(0x33FFFFFF)),
+                        ),
+                    ),
                 ) {
                     Row(
                         modifier = Modifier.height(150.dp),
@@ -290,7 +310,14 @@ private fun AboutPhoneContent(onBack: () -> Unit) {
                             Row(
                                 modifier = Modifier
                                     .clip(RoundedCornerShape(50))
-                                    .background(Color(0xFF3B0764).copy(alpha = if (dark) 0.6f else 0.12f))
+                                    .background(
+                                        Brush.horizontalGradient(
+                                            listOf(
+                                                Color(0xFF7E22CE).copy(alpha = if (dark) 0.55f else 0.2f),
+                                                Color(0xFF2563EB).copy(alpha = if (dark) 0.45f else 0.15f),
+                                            )
+                                        )
+                                    )
                                     .padding(horizontal = 10.dp, vertical = 4.dp),
                                 verticalAlignment = Alignment.CenterVertically,
                             ) {
@@ -305,24 +332,34 @@ private fun AboutPhoneContent(onBack: () -> Unit) {
 
             // Info rows
             val infoRows = listOf(
-                "FirmwareVersionDetailPreference" to R.drawable.about_icon_android,
-                "LineageVersionDetailPreference" to R.drawable.about_icon_evolution,
-                "SecurityPatchLevelPreference" to R.drawable.about_icon_security,
-                "LineageVendorSecurityPatchLevelPreference" to R.drawable.about_icon_vendor,
-                "BasebandVersionPreference" to R.drawable.about_icon_baseband,
-                "KernelVersionPreference" to R.drawable.about_icon_kernel,
-                "LineageBuildDatePreference" to R.drawable.about_icon_date,
-                "SimpleBuildNumberPreference" to R.drawable.about_icon_build,
+                "FirmwareVersionDetailPreference" to Pair(R.drawable.about_icon_android, Color(0xFF4ADE80)),
+                "LineageVersionDetailPreference" to Pair(R.drawable.about_icon_evolution, Color(0xFFD946EF)),
+                "SecurityPatchLevelPreference" to Pair(R.drawable.about_icon_security, Color(0xFF22D3EE)),
+                "LineageVendorSecurityPatchLevelPreference" to Pair(R.drawable.about_icon_vendor, Color(0xFFC026D3)),
+                "BasebandVersionPreference" to Pair(R.drawable.about_icon_baseband, Color(0xFF3B82F6)),
+                "KernelVersionPreference" to Pair(R.drawable.about_icon_kernel, Color(0xFF2563EB)),
+                "LineageBuildDatePreference" to Pair(R.drawable.about_icon_date, Color(0xFF3B82F6)),
+                "SimpleBuildNumberPreference" to Pair(R.drawable.about_icon_build, Color(0xFF2563EB)),
             )
-            items(infoRows) { (role, iconRes) ->
+            items(infoRows) { (role, styled) ->
+                val (iconRes, tint) = styled
                 val model = row(role) ?: return@items
-                Surface(
+                val rowShape = RoundedCornerShape(32.dp)
+                Box(
                     modifier = Modifier
                         .fillMaxWidth()
+                        .clip(rowShape)
+                        .background(
+                            Brush.horizontalGradient(
+                                listOf(
+                                    tint.copy(alpha = if (dark) 0.26f else 0.16f),
+                                    glass,
+                                )
+                            ),
+                            rowShape,
+                        )
+                        .border(1.dp, rim, rowShape)
                         .clickable(enabled = model.clickable) { model.onClick() },
-                    shape = RoundedCornerShape(32.dp),
-                    color = glass,
-                    border = BorderStroke(1.dp, rim),
                 ) {
                     Row(
                         modifier = Modifier.padding(horizontal = 16.dp, vertical = 14.dp),
