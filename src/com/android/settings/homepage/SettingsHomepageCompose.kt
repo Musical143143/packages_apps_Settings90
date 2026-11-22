@@ -260,6 +260,7 @@ fun SettingsHomepageScreen(
         leaveEditMode()
     }
     val saveEdits: () -> Unit = {
+        layout = layout.copy(editButtonHidden = true)
         store.save(layout)
         leaveEditMode()
     }
@@ -267,11 +268,13 @@ fun SettingsHomepageScreen(
     SideEffect {
         editController.isEditing = editing
         editController.discard = discardEdits
+        HomepageEditBridge.onLongPressEdit = if (editing) null else enterEditMode
     }
     DisposableEffect(editController) {
         onDispose {
             editController.discard = null
             editController.isEditing = false
+            HomepageEditBridge.onLongPressEdit = null
         }
     }
 
@@ -421,6 +424,9 @@ fun SettingsHomepageScreen(
                     onDiscard = discardEdits,
                     onReset = { confirmingReset = true },
                     onSave = saveEdits,
+                    showEditButton = !layout.editButtonHidden ||
+                        (layout.searchBar != SearchBarPosition.TOP &&
+                            layout.searchBar != SearchBarPosition.BOTTOM),
                     glass = glassBackdrop.takeIf { glassEnabled },
                     modifier = Modifier.align(Alignment.BottomCenter),
                 )
@@ -677,6 +683,7 @@ private fun BottomChrome(
     onDiscard: () -> Unit,
     onReset: () -> Unit,
     onSave: () -> Unit,
+    showEditButton: Boolean = true,
     glass: HomepageGlassBackdrop? = null,
     modifier: Modifier = Modifier,
 ) {
@@ -715,11 +722,13 @@ private fun BottomChrome(
                         glass = glass,
                         modifier = Modifier.weight(1f),
                     )
-                    Spacer(Modifier.width(10.dp))
-                    EditModeButton(onClick = onEnterEditMode, glass = glass)
+                    if (showEditButton) {
+                        Spacer(Modifier.width(10.dp))
+                        EditModeButton(onClick = onEnterEditMode, glass = glass)
+                    }
                 }
 
-                else -> {
+                else -> if (showEditButton) {
                     Spacer(Modifier.weight(1f))
                     EditModeButton(onClick = onEnterEditMode)
                 }

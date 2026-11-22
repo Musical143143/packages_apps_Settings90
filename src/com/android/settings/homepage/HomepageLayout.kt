@@ -179,6 +179,7 @@ data class HomepageLayout(
     val chevronStyle: ChevronStyle = ChevronStyle.PLAIN,
     val cornerStyle: CornerStyle = CornerStyle.ROUNDED,
     val dividerStyle: DividerStyle = DividerStyle.INSET,
+    val editButtonHidden: Boolean = false,
 ) {
 
     fun sizeOf(key: String, default: TileSize): TileSize = sizes[key] ?: default
@@ -394,6 +395,7 @@ internal object HomepageLayoutJson {
     private const val KEY_SEARCH_BAR = "searchBar"
     private const val KEY_SEARCH_BAR_BREAK = "searchBarBreak"
     private const val KEY_BOTTOM_BAR_GLASS = "bottomBarGlass"
+    private const val KEY_EDIT_BUTTON_HIDDEN = "editButtonHidden"
     private const val KEY_SHOW_SUMMARIES = "showSummaries"
     private const val KEY_ICON_STYLE = "iconStyle"
     private const val KEY_ICON_COLOR = "iconColor"
@@ -439,6 +441,7 @@ internal object HomepageLayoutJson {
         put(KEY_SEARCH_BAR, layout.searchBar.name)
         put(KEY_SEARCH_BAR_BREAK, layout.searchBarBreak)
         put(KEY_BOTTOM_BAR_GLASS, layout.bottomBarGlass)
+        put(KEY_EDIT_BUTTON_HIDDEN, layout.editButtonHidden)
         put(KEY_SHOW_SUMMARIES, layout.showSummaries)
         put(KEY_ICON_STYLE, layout.iconStyle.name)
         layout.iconColor?.let { put(KEY_ICON_COLOR, it) }
@@ -474,6 +477,7 @@ internal object HomepageLayoutJson {
                 searchBar = enumOr(json.optString(KEY_SEARCH_BAR), fallback.searchBar),
                 searchBarBreak = json.optBoolean(KEY_SEARCH_BAR_BREAK, fallback.searchBarBreak),
                 bottomBarGlass = json.optBoolean(KEY_BOTTOM_BAR_GLASS, fallback.bottomBarGlass),
+                editButtonHidden = json.optBoolean(KEY_EDIT_BUTTON_HIDDEN, fallback.editButtonHidden),
                 showSummaries = json.optBoolean(KEY_SHOW_SUMMARIES, fallback.showSummaries),
                 iconStyle = enumOr(json.optString(KEY_ICON_STYLE), fallback.iconStyle),
                 iconColor = json.optArgb(KEY_ICON_COLOR, fallback.iconColor),

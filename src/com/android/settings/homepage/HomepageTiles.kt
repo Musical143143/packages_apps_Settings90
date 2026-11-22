@@ -24,6 +24,15 @@ import androidx.compose.animation.Crossfade
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import com.android.settings.R
+import androidx.compose.ui.res.stringResource
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.getValue
+import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -676,6 +685,12 @@ private fun SearchBarBody(size: TileSize, hint: String) {
     }
 }
 
+/** Enters homepage edit mode; null while editing or when edit is unavailable. */
+internal object HomepageEditBridge {
+    var onLongPressEdit: (() -> Unit)? = null
+}
+
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 internal fun PinnedSearchBar(
     hint: String,
@@ -685,8 +700,13 @@ internal fun PinnedSearchBar(
     glass: HomepageGlassBackdrop? = null,
 ) {
     val shape = RoundedCornerShape(SEARCH_BAR_RADIUS)
+    var menuOpen by remember { mutableStateOf(false) }
+    val canEdit = HomepageEditBridge.onLongPressEdit != null
+    val openMenu: () -> Unit = { menuOpen = true }
+    Box(modifier = modifier) {
     Surface(
-        modifier = modifier
+        modifier = Modifier
+            .fillMaxWidth()
             .height(SEARCH_BAR_HEIGHT)
             .then(
                 if (glass != null) {
@@ -701,7 +721,10 @@ internal fun PinnedSearchBar(
                 }
             )
             .clip(shape)
-            .clickable(onClick = onClick),
+            .combinedClickable(
+                onClick = onClick,
+                onLongClick = if (canEdit) openMenu else null,
+            ),
         shape = shape,
         color = if (glass != null) Color.Transparent else MaterialTheme.colorScheme.surfaceBright,
         border = BorderStroke(
@@ -712,6 +735,19 @@ internal fun PinnedSearchBar(
         tonalElevation = if (elevated && glass == null) 6.dp else 0.dp,
     ) {
         SearchBarBody(size = TileSize.ROW, hint = hint)
+    }
+    DropdownMenu(
+        expanded = menuOpen && canEdit,
+        onDismissRequest = { menuOpen = false },
+    ) {
+        DropdownMenuItem(
+            text = { Text(stringResource(R.string.homepage_edit_action)) },
+            onClick = {
+                menuOpen = false
+                HomepageEditBridge.onLongPressEdit?.invoke()
+            },
+        )
+    }
     }
 }
 
