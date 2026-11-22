@@ -94,6 +94,8 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.unit.dp
+import androidx.compose.material3.Slider
+import kotlin.math.roundToInt
 
 private val RESIZE_STEP = 44.dp
 private val DEFAULT_AVATAR_SHAPE = HeaderConfig().avatarShape
@@ -930,6 +932,36 @@ internal fun AppearancePanel(
                         maxLines = 6,
                         modifier = Modifier.fillMaxWidth(),
                     )
+                    SwitchRow(
+                        label = "Custom header font",
+                        checked = layout.header.headerFont != null,
+                        onCheckedChange = {
+                            onLayout(layout.copy(header = layout.header.copy(headerFont = if (it) 0 else null)))
+                        },
+                    )
+                    layout.header.headerFont?.let { fontIndex ->
+                        val spec = HEADER_FONT_STYLES[fontIndex]
+                        Text(
+                            text = "Style ${fontIndex + 1} of $HEADER_FONT_STYLE_COUNT: ${spec.label}",
+                            style = MaterialTheme.typography.labelLarge,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        )
+                        Text(
+                            text = "Think positive",
+                            style = headerFontStyle(fontIndex, MaterialTheme.typography.headlineSmall),
+                            color = MaterialTheme.colorScheme.onSurface,
+                        )
+                        Slider(
+                            value = fontIndex.toFloat(),
+                            onValueChange = {
+                                onLayout(layout.copy(header = layout.header.copy(headerFont = it.roundToInt())))
+                            },
+                            valueRange = 0f..(HEADER_FONT_STYLE_COUNT - 1).toFloat(),
+                            steps = HEADER_FONT_STYLE_COUNT - 2,
+                            modifier = Modifier.fillMaxWidth(),
+                        )
+                    }
+
                     SectionLabel("Greeting position")
                     ChipOptions(
                         options = GreetingAlignment.values().toList(),

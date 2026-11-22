@@ -103,6 +103,11 @@ import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.StrokeJoin
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.font.FontStyle
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.unit.em
 
 internal val GRID_TILE_SPACING = 12.dp
 internal val SEARCH_BAR_HEIGHT = 56.dp
@@ -1198,6 +1203,66 @@ internal val HOMEPAGE_GREETINGS = listOf(
     "Be happy, %s",
 )
 
+/** One header font style: a system family, weight, italic and letter-spacing combination. */
+internal data class HeaderFontSpec(
+    val label: String,
+    val family: FontFamily,
+    val weight: FontWeight,
+    val italic: Boolean,
+    val wide: Boolean,
+)
+
+internal const val HEADER_FONT_STYLE_COUNT = 100
+
+/** 100 font styles: 5 families x 5 weights x normal/italic x normal/wide spacing. */
+internal val HEADER_FONT_STYLES: List<HeaderFontSpec> by lazy {
+    val families = listOf(
+        "Default" to FontFamily.Default,
+        "Serif" to FontFamily.Serif,
+        "Sans" to FontFamily.SansSerif,
+        "Mono" to FontFamily.Monospace,
+        "Cursive" to FontFamily.Cursive,
+    )
+    val weights = listOf(
+        "Light" to FontWeight.Light,
+        "Regular" to FontWeight.Normal,
+        "Medium" to FontWeight.Medium,
+        "Bold" to FontWeight.Bold,
+        "Black" to FontWeight.Black,
+    )
+    buildList {
+        for ((familyName, family) in families) {
+            for ((weightName, weight) in weights) {
+                for (italic in listOf(false, true)) {
+                    for (wide in listOf(false, true)) {
+                        val parts = buildList {
+                            add(familyName)
+                            add(weightName)
+                            if (italic) add("Italic")
+                            if (wide) add("Wide")
+                        }
+                        add(HeaderFontSpec(parts.joinToString(" "), family, weight, italic, wide))
+                    }
+                }
+            }
+        }
+    }
+}
+
+/** Applies a header font style; null keeps the theme's own text style. */
+internal fun headerFontStyle(index: Int?, base: TextStyle): TextStyle {
+    if (index == null) return base
+    val spec = HEADER_FONT_STYLES[index.coerceIn(0, HEADER_FONT_STYLE_COUNT - 1)]
+    return base.merge(
+        TextStyle(
+            fontFamily = spec.family,
+            fontWeight = spec.weight,
+            fontStyle = if (spec.italic) FontStyle.Italic else FontStyle.Normal,
+            letterSpacing = if (spec.wide) 0.12f.em else 0.em,
+        )
+    )
+}
+
 /** Fills a greeting template: %s becomes the name, or is removed when there is no name. */
 internal fun fillGreeting(template: String, name: String?): String =
     template.replace("%s", name ?: "").replace(" ,", ",").trim()
@@ -1239,7 +1304,7 @@ internal fun HomepageHeader(
             if (greeting != null) {
                 Text(
                     text = greeting,
-                    style = MaterialTheme.typography.titleSmall,
+                    style = headerFontStyle(config.headerFont, MaterialTheme.typography.titleSmall),
                     color = MaterialTheme.colorScheme.primary,
                     textAlign = when (config.greetingAlignment) {
                         GreetingAlignment.START -> TextAlign.Start
@@ -1255,11 +1320,14 @@ internal fun HomepageHeader(
             if (config.showTitle) {
                 Text(
                     text = title,
-                    style = if (compact) {
-                        MaterialTheme.typography.headlineMediumEmphasized
-                    } else {
-                        MaterialTheme.typography.displayMediumEmphasized
-                    },
+                    style = headerFontStyle(
+                        config.headerFont,
+                        if (compact) {
+                            MaterialTheme.typography.headlineMediumEmphasized
+                        } else {
+                            MaterialTheme.typography.displayMediumEmphasized
+                        },
+                    ),
                     color = MaterialTheme.colorScheme.onSurface,
                     textAlign = TextAlign.Start,
                     maxLines = 2,

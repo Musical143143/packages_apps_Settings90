@@ -231,6 +231,8 @@ data class HeaderConfig(
     /** User-written greetings, one per line. Empty means use the built-in greetings. */
     val customGreetings: String = "",
     val greetingAlignment: GreetingAlignment = GreetingAlignment.START,
+    /** Index into HEADER_FONT_STYLES, or null to use the theme's default font. */
+    val headerFont: Int? = null,
 )
 
 data class HomepageLayout(
@@ -493,6 +495,7 @@ internal object HomepageLayoutJson {
     private const val KEY_RANDOM_GREETING = "randomGreeting"
     private const val KEY_CUSTOM_GREETINGS = "customGreetings"
     private const val KEY_GREETING_ALIGNMENT = "greetingAlignment"
+    private const val KEY_HEADER_FONT = "headerFont"
     private const val KEY_HEADER_SIZE = "size"
     private const val KEY_AVATAR_SHAPE = "avatarShape"
 
@@ -520,6 +523,7 @@ internal object HomepageLayoutJson {
             put(KEY_RANDOM_GREETING, layout.header.randomGreeting)
             put(KEY_CUSTOM_GREETINGS, layout.header.customGreetings)
             put(KEY_GREETING_ALIGNMENT, layout.header.greetingAlignment.name)
+            layout.header.headerFont?.let { put(KEY_HEADER_FONT, it) }
             put(KEY_HEADER_SIZE, layout.header.size.name)
             put(KEY_AVATAR_SHAPE, layout.header.avatarShape.name)
         })
@@ -633,6 +637,11 @@ internal object HomepageLayoutJson {
             showGreeting = optBoolean(KEY_SHOW_GREETING, fallback.showGreeting),
             showHeader = optBoolean(KEY_SHOW_HEADER, fallback.showHeader),
             randomGreeting = optBoolean(KEY_RANDOM_GREETING, fallback.randomGreeting),
+            headerFont = if (has(KEY_HEADER_FONT)) {
+                optInt(KEY_HEADER_FONT).coerceIn(0, HEADER_FONT_STYLE_COUNT - 1)
+            } else {
+                fallback.headerFont
+            },
             customGreetings = optString(KEY_CUSTOM_GREETINGS, fallback.customGreetings),
             greetingAlignment = enumOr(
                 optString(KEY_GREETING_ALIGNMENT),
