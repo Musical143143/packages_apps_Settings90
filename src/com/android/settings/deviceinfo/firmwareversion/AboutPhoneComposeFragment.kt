@@ -288,7 +288,10 @@ private fun AboutPhoneContent(onBack: () -> Unit) {
                             contentDescription = null,
                             contentScale = ContentScale.Crop,
                             alignment = Alignment.TopCenter,
-                            modifier = Modifier.fillMaxHeight().width(128.dp),
+                            modifier = Modifier
+                                .fillMaxHeight()
+                                .width(128.dp)
+                                .padding(top = 14.dp),
                         )
                         Spacer(Modifier.width(16.dp))
                         Box(modifier = Modifier.width(1.dp).height(72.dp).background(rim))
