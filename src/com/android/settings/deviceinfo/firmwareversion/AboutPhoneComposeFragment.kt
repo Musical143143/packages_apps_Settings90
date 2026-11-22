@@ -87,6 +87,10 @@ import com.android.settings.widget.setSettingsContent
 import com.android.settingslib.metadata.PreferenceAvailabilityProvider
 import com.android.settingslib.metadata.PreferenceMetadata
 import com.android.settingslib.metadata.PreferenceSummaryProvider
+import androidx.compose.foundation.Image
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
+import com.android.settings.R
 
 /**
  * One row on the About phone page, built from the existing preference metadata.
@@ -288,19 +292,12 @@ private fun AboutPhoneContent(onBack: () -> Unit) {
                         modifier = Modifier.padding(14.dp),
                         verticalAlignment = Alignment.CenterVertically,
                     ) {
-                        Box(
-                            modifier = Modifier
-                                .size(width = 96.dp, height = 110.dp)
-                                .clip(RoundedCornerShape(24.dp))
-                                .background(
-                                    Brush.linearGradient(
-                                        listOf(Color(0xFF7C3AED), Color(0xFF2563EB))
-                                    )
-                                ),
-                            contentAlignment = Alignment.Center,
-                        ) {
-                            Icon(Icons.Filled.Phone, contentDescription = null, tint = Color.White.copy(alpha = 0.85f), modifier = Modifier.size(40.dp))
-                        }
+                        Image(
+                            painter = painterResource(R.drawable.about_device_photo),
+                            contentDescription = null,
+                            contentScale = ContentScale.Fit,
+                            modifier = Modifier.size(width = 92.dp, height = 116.dp),
+                        )
                         Spacer(Modifier.width(14.dp))
                         Box(modifier = Modifier.width(1.dp).height(72.dp).background(rim))
                         Spacer(Modifier.width(14.dp))
