@@ -83,7 +83,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalDensity
@@ -103,56 +105,67 @@ internal fun EditModeButton(
     glass: HomepageGlassBackdrop? = null,
 ) {
     val pill = RoundedCornerShape(50)
-    val isDark = MaterialTheme.colorScheme.surface.luminance() < 0.5f
+    val scheme = MaterialTheme.colorScheme
+    val isDark = scheme.surface.luminance() < 0.5f
+    val isGlass = glass != null
     val glassTint = if (isDark) Color.White.copy(alpha = 0.10f) else Color.White.copy(alpha = 0.42f)
     val glassHighlight = if (isDark) Color.White.copy(alpha = 0.28f) else Color.White.copy(alpha = 0.9f)
     val glassBorder = if (isDark) Color.White.copy(alpha = 0.22f) else Color.White.copy(alpha = 0.7f)
-    val ink = if (glass != null) {
-        MaterialTheme.colorScheme.onSurface
+    val gradient = Brush.linearGradient(listOf(scheme.primary, scheme.tertiary))
+    val ink = if (isGlass) scheme.onSurface else scheme.onPrimary
+    val iconBubble = if (isGlass) {
+        scheme.primary.copy(alpha = 0.18f)
     } else {
-        MaterialTheme.colorScheme.onPrimaryContainer
+        scheme.onPrimary.copy(alpha = 0.16f)
     }
     Surface(
         modifier = modifier
             .height(SEARCH_BAR_HEIGHT)
+            .shadow(
+                elevation = if (isGlass) 0.dp else 10.dp,
+                shape = pill,
+                ambientColor = scheme.primary.copy(alpha = 0.35f),
+                spotColor = scheme.primary.copy(alpha = 0.35f),
+            )
             .clip(pill)
             .then(
-                if (glass != null) {
+                if (isGlass) {
                     Modifier
                         .homepageGlass(
-                            backdrop = glass,
+                            backdrop = glass!!,
                             shape = pill,
                             tint = glassTint,
                             highlight = glassHighlight,
                         )
-                        .border(
-                            1.dp,
-                            glassBorder,
-                            pill,
-                        )
+                        .border(1.dp, glassBorder, pill)
                 } else {
-                    Modifier
+                    Modifier.background(gradient, pill)
                 }
             )
             .clickable(onClick = onClick),
         shape = pill,
-        color = if (glass != null) Color.Transparent else MaterialTheme.colorScheme.primaryContainer,
-        shadowElevation = if (glass != null) 0.dp else 12.dp,
-        tonalElevation = if (glass != null) 0.dp else 6.dp,
+        color = Color.Transparent,
     ) {
         Row(
             modifier = Modifier
                 .fillMaxHeight()
-                .padding(horizontal = 18.dp),
+                .padding(start = 8.dp, end = 20.dp),
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            Icon(
-                imageVector = Icons.Outlined.Edit,
-                contentDescription = "Customise homepage",
-                tint = ink,
-                modifier = Modifier.size(20.dp),
-            )
-            Spacer(Modifier.width(8.dp))
+            Box(
+                modifier = Modifier
+                    .size(32.dp)
+                    .background(iconBubble, CircleShape),
+                contentAlignment = Alignment.Center,
+            ) {
+                Icon(
+                    imageVector = Icons.Outlined.Edit,
+                    contentDescription = "Customise homepage",
+                    tint = ink,
+                    modifier = Modifier.size(18.dp),
+                )
+            }
+            Spacer(Modifier.width(10.dp))
             Text(
                 text = stringResource(R.string.homepage_edit_action),
                 style = MaterialTheme.typography.labelLarge,
